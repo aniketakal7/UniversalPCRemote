@@ -1,30 +1,82 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:android_app/main.dart';
+import 'package:android_app/protocol/models.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('Protocol Models Tests', () {
+    test('CommandEnvelope generates valid JSON envelope', () {
+      final envelope = CommandEnvelope(
+        version: 1,
+        requestId: 'test-req-123',
+        type: CommandTypes.mouseMove,
+        timestamp: 1712500000,
+        payload: {'dx': 10.5, 'dy': -5.0},
+      );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      final json = envelope.toJson();
+      expect(json['version'], 1);
+      expect(json['requestId'], 'test-req-123');
+      expect(json['type'], 'mouse.move');
+      expect(json['payload']['dx'], 10.5);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      final encoded = envelope.encode();
+      final decoded = jsonDecode(encoded) as Map<String, dynamic>;
+      expect(decoded['type'], 'mouse.move');
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('ResponseEnvelope parses success response', () {
+      final raw = {
+        'version': 1,
+        'requestId': 'req-999',
+        'type': CommandTypes.systemGetInfo,
+        'success': true,
+        'data': {'pcName': 'DESKTOP-TEST', 'uptime': '5h'},
+        'error': null,
+      };
+
+      final resp = ResponseEnvelope.fromJson(raw);
+      expect(resp.success, true);
+      expect(resp.requestId, 'req-999');
+      expect(resp.data['pcName'], 'DESKTOP-TEST');
+      expect(resp.error, null);
+    });
+
+    test('ResponseEnvelope parses error payload', () {
+      final raw = {
+        'version': 1,
+        'requestId': 'req-error',
+        'type': 'mouse.move',
+        'success': false,
+        'data': null,
+        'error': {
+          'code': 'UNAUTHORIZED',
+          'message': 'Session is not authenticated.',
+        },
+      };
+
+      final resp = ResponseEnvelope.fromJson(raw);
+      expect(resp.success, false);
+      expect(resp.error, isNotNull);
+      expect(resp.error!.code, 'UNAUTHORIZED');
+      expect(resp.error!.message, 'Session is not authenticated.');
+    });
+
+    test('UUID generator produces valid format', () {
+      final id = CommandEnvelope.generateId();
+      expect(id.length, 36);
+      expect(id.split('-').length, 5);
+    });
+  });
+
+  group('UI Smoke Test', () {
+    testWidgets('App renders main screens and title', (WidgetTester tester) async {
+      await tester.pumpWidget(const UniversalRemoteApp());
+      await tester.pump();
+
+      expect(find.text('Touchpad & Mouse'), findsOneWidget);
+      expect(find.text('LEFT CLICK'), findsOneWidget);
+      expect(find.text('RIGHT CLICK'), findsOneWidget);
+    });
   });
 }

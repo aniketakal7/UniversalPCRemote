@@ -4,13 +4,12 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\windows_companion\UniversalPCRemote.Companion.csproj" />
+    <ProjectReference Include="..\..\windows_companion\UniversalPCRemote.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

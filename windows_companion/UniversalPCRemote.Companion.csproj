@@ -13,4 +13,23 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="UniversalPCRemote.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\Applications\**" />
+    <Compile Remove="src\Clipboard\**" />
+    <Compile Remove="src\Diagnostics\**" />
+    <Compile Remove="src\Discovery\**" />
+    <Compile Remove="src\Input\**" />
+    <Compile Remove="src\Logging\**" />
+    <Compile Remove="src\Macros\**" />
+    <Compile Remove="src\Media\**" />
+    <Compile Remove="src\Protocol\**" />
+    <Compile Remove="src\Security\**" />
+    <Compile Remove="src\Server\**" />
+    <Compile Remove="src\System\**" />
+  </ItemGroup>
+
 </Project>

@@ -22,6 +22,9 @@ class RemoteClient {
   Timer? _pingTimer;
   Timer? _reconnectTimer;
   bool _intentionalDisconnect = false;
+  bool _isConnecting = false;
+  int _connectionGeneration = 0;
+  int _reconnectAttempt = 0;
 
   final StreamController<ClientConnectionState> _stateController =
       StreamController<ClientConnectionState>.broadcast();
@@ -38,57 +41,105 @@ class RemoteClient {
     }
   }
 
-  Future<void> connect(String host, [int port = AppConstants.defaultServerPort]) async {
-    _intentionalDisconnect = false;
-    _currentHost = host;
-    _currentPort = port;
+  Future<void> connect(String host,
+      [int port = AppConstants.defaultServerPort]) async {
+    if (_isConnecting) return;
 
-    await disconnect();
+    _isConnecting = true;
+    // Normalize host and port
+    String cleanHost = host.trim();
+    int cleanPort = port;
+
+    if (cleanHost.startsWith('ws://')) {
+      cleanHost = cleanHost.substring(5);
+    } else if (cleanHost.startsWith('wss://')) {
+      cleanHost = cleanHost.substring(6);
+    } else if (cleanHost.startsWith('http://')) {
+      cleanHost = cleanHost.substring(7);
+    } else if (cleanHost.startsWith('https://')) {
+      cleanHost = cleanHost.substring(8);
+    }
+
+    if (cleanHost.contains('/')) {
+      cleanHost = cleanHost.split('/').first;
+    }
+
+    if (cleanHost.contains(':') && !cleanHost.contains(']')) {
+      final parts = cleanHost.split(':');
+      if (parts.length == 2 && int.tryParse(parts[1]) != null) {
+        cleanHost = parts[0];
+        cleanPort = int.parse(parts[1]);
+      }
+    }
+
+    _currentHost = cleanHost;
+    _currentPort = cleanPort;
+
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
+    final generation = ++_connectionGeneration;
+    _pingTimer?.cancel();
+    _rejectPendingRequests('Connection replaced');
+    await _closeCurrentSocket();
 
     _setState(ClientConnectionState.connecting);
 
     try {
-      final uri = Uri.parse('ws://$host:$port/remote');
-      _socket = await WebSocket.connect(uri.toString())
+      final uriString = cleanHost.contains(':') && !cleanHost.startsWith('[')
+          ? 'ws://[$cleanHost]:$cleanPort/remote'
+          : 'ws://$cleanHost:$cleanPort/remote';
+      final uri = Uri.parse(uriString);
+      final socket = await WebSocket.connect(uri.toString())
           .timeout(AppConstants.requestTimeout);
+      if (generation != _connectionGeneration || _intentionalDisconnect) {
+        await socket.close(WebSocketStatus.normalClosure);
+        return;
+      }
+
+      _socket = socket;
+      _reconnectAttempt = 0;
 
       _setState(ClientConnectionState.connected);
-      _startHeartbeat();
+      _startHeartbeat(generation);
 
-      _socket!.listen(
+      socket.listen(
         _onMessageReceived,
-        onError: _onError,
-        onDone: _onDone,
+        onError: (error) => _onError(generation, error),
+        onDone: () => _onDone(generation),
         cancelOnError: true,
       );
     } catch (e) {
-      _setState(ClientConnectionState.error);
-      _scheduleReconnect();
+      if (generation == _connectionGeneration && !_intentionalDisconnect) {
+        _setState(ClientConnectionState.error);
+        _scheduleReconnect();
+      }
       rethrow;
+    } finally {
+      _isConnecting = false;
     }
   }
 
   Future<void> disconnect() async {
     _intentionalDisconnect = true;
+    ++_connectionGeneration;
     _pingTimer?.cancel();
     _reconnectTimer?.cancel();
+    _reconnectTimer = null;
 
-    // Reject all pending requests
+    _rejectPendingRequests('Connection closed');
+
+    await _closeCurrentSocket();
+
+    _setState(ClientConnectionState.disconnected);
+  }
+
+  void _rejectPendingRequests(String reason) {
     for (final completer in _pendingRequests.values) {
       if (!completer.isCompleted) {
-        completer.completeError('Connection closed');
+        completer.completeError(reason);
       }
     }
     _pendingRequests.clear();
-
-    if (_socket != null) {
-      try {
-        await _socket!.close(WebSocketStatus.normalClosure);
-      } catch (_) {}
-      _socket = null;
-    }
-
-    _setState(ClientConnectionState.disconnected);
   }
 
   Future<ResponseEnvelope> sendCommand(
@@ -123,7 +174,8 @@ class RemoteClient {
       timeout,
       onTimeout: () {
         _pendingRequests.remove(requestId);
-        throw TimeoutException('Command "$type" timed out after ${timeout.inSeconds}s');
+        throw TimeoutException(
+            'Command "$type" timed out after ${timeout.inSeconds}s');
       },
     );
   }
@@ -134,10 +186,12 @@ class RemoteClient {
     try {
       final envelope = CommandEnvelope(
         version: AppConstants.protocolVersion,
-        requestId: CommandEnvelope.generateId(),
+        requestId: CommandEnvelope.generateFastId(),
         type: type,
         timestamp: DateTime.now().millisecondsSinceEpoch,
-        payload: payload,
+        // The server still returns errors, but successful high-frequency input
+        // packets do not need an acknowledgement frame.
+        payload: {...payload, '_noResponse': true},
       );
       _socket!.add(envelope.encode());
     } catch (_) {
@@ -161,13 +215,15 @@ class RemoteClient {
     }
   }
 
-  void _onError(dynamic error) {
+  void _onError(int generation, dynamic error) {
+    if (generation != _connectionGeneration) return;
     _setState(ClientConnectionState.error);
     _cleanupSocket();
     _scheduleReconnect();
   }
 
-  void _onDone() {
+  void _onDone(int generation) {
+    if (generation != _connectionGeneration) return;
     _cleanupSocket();
     if (!_intentionalDisconnect) {
       _setState(ClientConnectionState.disconnected);
@@ -180,24 +236,42 @@ class RemoteClient {
   void _cleanupSocket() {
     _pingTimer?.cancel();
     _socket = null;
-    for (final completer in _pendingRequests.values) {
-      if (!completer.isCompleted) {
-        completer.completeError('Socket disconnected');
-      }
-    }
-    _pendingRequests.clear();
+    _rejectPendingRequests('Socket disconnected');
   }
 
-  void _startHeartbeat() {
+  Future<void> _closeCurrentSocket() async {
+    final socket = _socket;
+    _socket = null;
+    if (socket != null) {
+      try {
+        await socket.close(WebSocketStatus.normalClosure);
+      } catch (_) {}
+    }
+  }
+
+  int _consecutivePingFailures = 0;
+
+  void _startHeartbeat(int generation) {
     _pingTimer?.cancel();
+    _consecutivePingFailures = 0;
     _pingTimer = Timer.periodic(AppConstants.pingInterval, (_) async {
-      if (_state == ClientConnectionState.connected) {
+      if (generation == _connectionGeneration &&
+          _state == ClientConnectionState.connected) {
         try {
-          await sendCommand(CommandTypes.sessionPing, {}, const Duration(seconds: 4));
+          await sendCommand(
+              CommandTypes.sessionPing, {}, const Duration(seconds: 7));
+          _consecutivePingFailures = 0;
         } catch (_) {
-          // Ping failed; trigger reconnect
-          _cleanupSocket();
-          _scheduleReconnect();
+          if (generation != _connectionGeneration) return;
+          _consecutivePingFailures++;
+          if (_consecutivePingFailures >= 2) {
+            // 2 consecutive heartbeat timeouts -> trigger reconnect
+            ++_connectionGeneration;
+            await _closeCurrentSocket();
+            _cleanupSocket();
+            _setState(ClientConnectionState.disconnected);
+            _scheduleReconnect();
+          }
         }
       }
     });
@@ -205,9 +279,22 @@ class RemoteClient {
 
   void _scheduleReconnect() {
     if (_intentionalDisconnect || _currentHost == null) return;
-    _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(const Duration(seconds: 3), () async {
-      if (_state != ClientConnectionState.connected && !_intentionalDisconnect) {
+    if (_reconnectTimer != null) return;
+    const delays = [
+      Duration(seconds: 1),
+      Duration(seconds: 2),
+      Duration(seconds: 5),
+      Duration(seconds: 10),
+      Duration(seconds: 20),
+      Duration(seconds: 30)
+    ];
+    final delayIndex = _reconnectAttempt.clamp(0, delays.length - 1);
+    final delay = delays[delayIndex];
+    _reconnectAttempt++;
+    _reconnectTimer = Timer(delay, () async {
+      _reconnectTimer = null;
+      if (_state != ClientConnectionState.connected &&
+          !_intentionalDisconnect) {
         _setState(ClientConnectionState.reconnecting);
         try {
           await connect(_currentHost!, _currentPort);
@@ -216,6 +303,22 @@ class RemoteClient {
         }
       }
     });
+  }
+
+  /// Re-establishes the socket after Android resumes from the background.
+  /// Authentication is intentionally handled by ConnectionStateManager because
+  /// each new socket has a new server-side session.
+  Future<void> reconnectNow({bool force = false}) async {
+    if (_currentHost == null || _intentionalDisconnect) return;
+    if (!force && _state == ClientConnectionState.connected) return;
+
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
+    try {
+      await connect(_currentHost!, _currentPort);
+    } catch (_) {
+      // The normal reconnect timer will keep retrying while the PC is unavailable.
+    }
   }
 
   void dispose() {

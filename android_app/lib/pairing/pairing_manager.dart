@@ -61,9 +61,22 @@ class PairingManager {
     }
   }
 
-  bool isPairedWith(String ip) => _pairedPcs.containsKey(ip);
+  bool isPairedWith(String ip, [String? pcName]) {
+    if (_pairedPcs.containsKey(ip)) return true;
+    if (pcName != null && pcName.isNotEmpty) {
+      return _pairedPcs.values.any((p) => p.pcName == pcName);
+    }
+    return false;
+  }
 
-  String? getAuthTokenFor(String ip) => _pairedPcs[ip]?.authToken;
+  String? getAuthTokenFor(String ip, [String? pcName]) {
+    if (_pairedPcs.containsKey(ip)) return _pairedPcs[ip]?.authToken;
+    if (pcName != null && pcName.isNotEmpty) {
+      final match = _pairedPcs.values.where((p) => p.pcName == pcName).firstOrNull;
+      return match?.authToken;
+    }
+    return null;
+  }
 
   Future<bool> initiatePairing(RemoteClient client, String deviceName) async {
     final resp = await client.sendCommand(
@@ -104,8 +117,8 @@ class PairingManager {
     return false;
   }
 
-  Future<bool> authenticate(RemoteClient client, String ip) async {
-    final token = getAuthTokenFor(ip);
+  Future<bool> authenticate(RemoteClient client, String ip, [String? pcName]) async {
+    final token = getAuthTokenFor(ip, pcName);
     if (token == null) return false;
 
     try {
@@ -116,14 +129,30 @@ class PairingManager {
           'authToken': token,
         },
       );
-      return resp.success;
+      if (resp.success) {
+        if (!_pairedPcs.containsKey(ip)) {
+          final matched = _pairedPcs.values.where((p) => p.pcName == pcName).firstOrNull;
+          _pairedPcs[ip] = PairedDeviceInfo(
+            ip: ip,
+            pcName: pcName ?? matched?.pcName ?? 'Windows PC',
+            authToken: token,
+            pairedAt: DateTime.now(),
+          );
+          await _savePairedPcs();
+        }
+        return true;
+      }
+      return false;
     } catch (_) {
       return false;
     }
   }
 
-  Future<void> forgetDevice(String ip) async {
+  Future<void> forgetDevice(String ip, [String? pcName]) async {
     _pairedPcs.remove(ip);
+    if (pcName != null && pcName.isNotEmpty) {
+      _pairedPcs.removeWhere((_, p) => p.pcName == pcName);
+    }
     await _savePairedPcs();
   }
 

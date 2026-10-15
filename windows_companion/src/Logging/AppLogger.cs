@@ -55,7 +55,16 @@ public class AppLogger
         while (_logs.Count > MaxLogCapacity && _logs.TryDequeue(out _)) { }
 
         // Also write to standard debug console
-        Console.WriteLine($"[{entry.Timestamp:HH:mm:ss.fff}] [{entry.Level.ToString().ToUpperInvariant()}] [{entry.Component}] {entry.Message}{(string.IsNullOrEmpty(entry.RequestId) ? "" : $" (Req: {entry.RequestId})")}");
+        var logLine = $"[{entry.Timestamp:HH:mm:ss.fff}] [{entry.Level.ToString().ToUpperInvariant()}] [{entry.Component}] {entry.Message}{(string.IsNullOrEmpty(entry.RequestId) ? "" : $" (Req: {entry.RequestId})")}{(string.IsNullOrEmpty(entry.ErrorDetails) ? "" : $" Details: {entry.ErrorDetails}")}";
+        Console.WriteLine(logLine);
+
+        try
+        {
+            var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "UniversalPCRemote");
+            Directory.CreateDirectory(logDir);
+            File.AppendAllText(Path.Combine(logDir, "companion.log"), logLine + Environment.NewLine);
+        }
+        catch { }
 
         try
         {

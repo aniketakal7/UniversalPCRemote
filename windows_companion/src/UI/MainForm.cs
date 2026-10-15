@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.Win32;
 using UniversalPCRemote.Companion.Applications;
 using UniversalPCRemote.Companion.Clipboard;
 using UniversalPCRemote.Companion.Diagnostics;
@@ -34,6 +35,11 @@ public class MainForm : Form
     private ListBox _lstLogs = null!;
     private ListView _lvDiagnostics = null!;
     private NotifyIcon _trayIcon = null!;
+    private CheckBox _chkStartWithWindows = null!;
+    private bool _suppressStartupSettingUpdate;
+
+    private const string StartupRegistryPath = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    private const string StartupValueName = "UniversalPCRemote";
 
     public MainForm()
     {
@@ -47,17 +53,14 @@ public class MainForm : Form
         _securityManager = SecurityManager.Instance;
         _registry = new CommandRegistry(_securityManager);
 
-        // Register all command handlers
-        RegisterHandlers();
-
         _server = new CompanionWebSocketServer(51234, _registry);
         _beacon = new DiscoveryBeacon(51234, 51235);
 
+        // Register all command handlers
+        RegisterHandlers();
+
         InitializeComponents();
         WireEvents();
-
-        // Start server and discovery beacon automatically
-        StartServices();
     }
 
     private void RegisterHandlers()
@@ -92,6 +95,8 @@ public class MainForm : Form
         _registry.Register(CommandTypes.MediaNext, mediaHandler);
         _registry.Register(CommandTypes.MediaPrevious, mediaHandler);
         _registry.Register(CommandTypes.MediaStop, mediaHandler);
+        _registry.Register(CommandTypes.MediaSeekBackward, mediaHandler);
+        _registry.Register(CommandTypes.MediaSeekForward, mediaHandler);
         _registry.Register(CommandTypes.MediaVolumeUp, mediaHandler);
         _registry.Register(CommandTypes.MediaVolumeDown, mediaHandler);
         _registry.Register(CommandTypes.MediaVolumeMute, mediaHandler);
@@ -169,7 +174,7 @@ public class MainForm : Form
         _pnlPairingAlert = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 85,
+            Height = 110,
             BackColor = Color.FromArgb(254, 243, 199),
             Visible = false,
             Padding = new Padding(15)
@@ -188,20 +193,38 @@ public class MainForm : Form
         {
             Text = "000000",
             ForeColor = Color.FromArgb(180, 83, 9),
-            Font = new Font("Segoe UI", 22f, FontStyle.Bold),
+            Font = new Font("Consolas", 13f, FontStyle.Bold),
             Location = new Point(20, 32),
-            AutoSize = true
+            Size = new Size(610, 64)
         };
 
         _lblPairingDevice = new Label
         {
-            Text = "Device: Phone",
-            ForeColor = Color.FromArgb(120, 53, 15),
-            Location = new Point(220, 42),
-            AutoSize = true
+            Visible = false
         };
 
-        _pnlPairingAlert.Controls.AddRange(new Control[] { lblPairAlertTitle, _lblPairingPin, _lblPairingDevice });
+        var btnCopyPin = new Button
+        {
+            Text = "📋 Copy PIN",
+            Size = new Size(110, 34),
+            Location = new Point(650, 8),
+            BackColor = Color.FromArgb(217, 119, 6),
+            ForeColor = Color.White,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9f, FontStyle.Bold)
+        };
+        btnCopyPin.FlatAppearance.BorderSize = 0;
+        btnCopyPin.Click += (_, _) =>
+        {
+            var firstPin = _securityManager.GetActivePairings().FirstOrDefault()?.Pin;
+            if (!string.IsNullOrEmpty(firstPin))
+            {
+                System.Windows.Forms.Clipboard.SetText(firstPin);
+                MessageBox.Show($"Pairing PIN {firstPin} copied to clipboard!", "Universal PC Remote", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        };
+
+        _pnlPairingAlert.Controls.AddRange(new Control[] { lblPairAlertTitle, _lblPairingPin, btnCopyPin, _lblPairingDevice });
 
         // Tab Control
         var tabs = new TabControl
@@ -232,11 +255,31 @@ public class MainForm : Form
         Controls.Add(_pnlPairingAlert);
         Controls.Add(header);
 
+        // App and Tray Icon
+        Icon appIcon;
+        try
+        {
+            var iconPath = Path.Combine(AppContext.BaseDirectory, "assets", "app_icon.ico");
+            if (File.Exists(iconPath))
+            {
+                appIcon = new Icon(iconPath);
+            }
+            else
+            {
+                appIcon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application;
+            }
+        }
+        catch
+        {
+            appIcon = SystemIcons.Application;
+        }
+        Icon = appIcon;
+
         // Tray Icon
         _trayIcon = new NotifyIcon
         {
             Text = "Universal PC Remote Companion",
-            Icon = SystemIcons.Application,
+            Icon = appIcon,
             Visible = true
         };
         _trayIcon.DoubleClick += (_, _) =>
@@ -247,12 +290,30 @@ public class MainForm : Form
         };
 
         var trayMenu = new ContextMenuStrip();
-        trayMenu.Items.Add("Show Companion", null, (_, _) =>
+        var itemHeader = new ToolStripMenuItem("Universal PC Remote Companion") { Enabled = false };
+        trayMenu.Items.Add(itemHeader);
+        trayMenu.Items.Add(new ToolStripSeparator());
+        trayMenu.Items.Add("Open Companion Window", null, (_, _) =>
         {
             Show();
             WindowState = FormWindowState.Normal;
+            BringToFront();
         });
-        trayMenu.Items.Add("Exit", null, (_, _) =>
+        trayMenu.Items.Add("Copy Pairing PIN", null, (_, _) =>
+        {
+            if (_pnlPairingAlert.Visible && !string.IsNullOrEmpty(_lblPairingPin.Text))
+            {
+                System.Windows.Forms.Clipboard.SetText(_lblPairingPin.Text);
+                _trayIcon.ShowBalloonTip(1500, "PIN Copied", $"Pairing PIN {_lblPairingPin.Text} copied to clipboard.", ToolTipIcon.Info);
+            }
+            else
+            {
+                MessageBox.Show("No active pairing session right now.", "Universal PC Remote", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        });
+        trayMenu.Items.Add("Configure Windows Firewall", null, (_, _) => ConfigureFirewall());
+        trayMenu.Items.Add(new ToolStripSeparator());
+        trayMenu.Items.Add("Exit Companion", null, (_, _) =>
         {
             _trayIcon.Visible = false;
             Application.Exit();
@@ -276,9 +337,13 @@ public class MainForm : Form
 
         var ips = DiscoveryBeacon.GetLocalIpAddresses();
         var ipList = ips.Count > 0 ? string.Join(", ", ips) : "127.0.0.1";
+        var hotspot = DiscoveryBeacon.GetHotspotInfo();
+        var hotspotStatus = hotspot.IsConnected
+            ? $"\n📱 Connected to Phone Hotspot (PC: {hotspot.PcIp} • Phone Gateway: {hotspot.PhoneGatewayIp})"
+            : "";
         _lblIpPort = new Label
         {
-            Text = $"IP Address(es): {ipList}\nPort: 51234 (WebSocket), 51235 (Discovery)",
+            Text = $"IP Address(es): {ipList}\nPort: 51234 (WebSocket), 51235 (Discovery){hotspotStatus}",
             Font = new Font("Segoe UI", 10f),
             ForeColor = Color.FromArgb(50, 50, 50),
             Location = new Point(25, 60),
@@ -353,7 +418,45 @@ public class MainForm : Form
 
         quickTestBox.Controls.AddRange(new Control[] { btnTestCursor, btnTestMedia, btnTestVolUp, btnTestVolDown, lblNote });
 
-        pnl.Controls.AddRange(new Control[] { _lblStatus, _lblIpPort, _lblConnectedClients, quickTestBox });
+        _chkStartWithWindows = new CheckBox
+        {
+            Text = "Start Universal PC Remote when I sign in",
+            Checked = IsStartupEnabled(),
+            AutoSize = true,
+            Location = new Point(25, 320),
+            Font = new Font("Segoe UI", 9.5f)
+        };
+        _chkStartWithWindows.CheckedChanged += (_, _) =>
+        {
+            if (!_suppressStartupSettingUpdate) UpdateStartupRegistration();
+        };
+
+        var btnFirewall = new Button
+        {
+            Text = "🛡️ Allow in Windows Firewall",
+            Size = new Size(240, 34),
+            Location = new Point(25, 360),
+            BackColor = Color.FromArgb(241, 245, 249),
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9f, FontStyle.Regular)
+        };
+        btnFirewall.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+        btnFirewall.Click += (_, _) => ConfigureFirewall();
+
+        _btnToggleServer = new Button
+        {
+            Text = "Restart Server",
+            Size = new Size(130, 32),
+            Location = new Point(630, 22),
+            BackColor = Color.FromArgb(14, 165, 233),
+            ForeColor = Color.White,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9f, FontStyle.Bold)
+        };
+        _btnToggleServer.FlatAppearance.BorderSize = 0;
+        _btnToggleServer.Click += async (_, _) => await ToggleServerAsync();
+
+        pnl.Controls.AddRange(new Control[] { _lblStatus, _btnToggleServer, _lblIpPort, _lblConnectedClients, quickTestBox, _chkStartWithWindows, btnFirewall });
         page.Controls.Add(pnl);
     }
 
@@ -478,21 +581,19 @@ public class MainForm : Form
             });
         };
 
-        _securityManager.PairingCodeGenerated += (pin, device) =>
+        _securityManager.PairingCodeGenerated += (_, _, _) =>
         {
             Invoke(() =>
             {
-                _lblPairingPin.Text = pin;
-                _lblPairingDevice.Text = $"Device: {device}";
-                _pnlPairingAlert.Visible = true;
+                RefreshPairingAlert();
             });
         };
 
-        _securityManager.PairingCodeExpired += () =>
+        _securityManager.PairingCodeExpired += _ =>
         {
             Invoke(() =>
             {
-                _pnlPairingAlert.Visible = false;
+                RefreshPairingAlert();
             });
         };
 
@@ -520,6 +621,14 @@ public class MainForm : Form
         };
     }
 
+    private void RefreshPairingAlert()
+    {
+        var pairings = _securityManager.GetActivePairings();
+        _pnlPairingAlert.Visible = pairings.Count > 0;
+        _lblPairingPin.Text = string.Join(Environment.NewLine,
+            pairings.Select(pairing => $"{pairing.Pin}  -  {pairing.DeviceName}"));
+    }
+
     private async void StartServices()
     {
         try
@@ -530,6 +639,14 @@ public class MainForm : Form
             _lblStatus.ForeColor = Color.FromArgb(40, 167, 69);
             _btnToggleServer.Text = "Stop Server";
             _btnToggleServer.BackColor = Color.FromArgb(220, 53, 69);
+
+            var ips = DiscoveryBeacon.GetLocalIpAddresses();
+            var ipList = ips.Count > 0 ? string.Join(", ", ips) : "127.0.0.1";
+            var hotspot = DiscoveryBeacon.GetHotspotInfo();
+            var hotspotStatus = hotspot.IsConnected
+                ? $"\n📱 Connected to Phone Hotspot (PC: {hotspot.PcIp} • Phone Gateway: {hotspot.PhoneGatewayIp})"
+                : "";
+            _lblIpPort.Text = $"IP Address(es): {ipList}\nPort: 51234 (WebSocket), 51235 (Discovery){hotspotStatus}";
         }
         catch (Exception ex)
         {
@@ -610,6 +727,107 @@ public class MainForm : Form
             }
 
             _lvDiagnostics.Items.Add(lvi);
+        }
+    }
+
+    private static bool IsStartupEnabled()
+    {
+        using var key = Registry.CurrentUser.OpenSubKey(StartupRegistryPath, writable: false);
+        return key?.GetValue(StartupValueName) is string;
+    }
+
+    private void UpdateStartupRegistration()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(StartupRegistryPath, writable: true)
+                ?? throw new InvalidOperationException("Windows startup settings could not be opened.");
+
+            if (_chkStartWithWindows.Checked)
+            {
+                var executablePath = Environment.ProcessPath;
+                if (string.IsNullOrWhiteSpace(executablePath) || !executablePath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException("Startup can be enabled only from the published Companion executable.");
+                }
+
+                key.SetValue(StartupValueName, $"\"{executablePath}\" --minimized", RegistryValueKind.String);
+                AppLogger.Instance.Info("Startup", "Companion configured to start automatically at sign-in.");
+            }
+            else
+            {
+                key.DeleteValue(StartupValueName, throwOnMissingValue: false);
+                AppLogger.Instance.Info("Startup", "Automatic companion startup disabled.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _suppressStartupSettingUpdate = true;
+            _chkStartWithWindows.Checked = !_chkStartWithWindows.Checked;
+            _suppressStartupSettingUpdate = false;
+            AppLogger.Instance.Error("Startup", "Failed to update automatic startup setting.", ex);
+            MessageBox.Show(ex.Message, "Universal PC Remote", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void ConfigureFirewall()
+    {
+        try
+        {
+            var exePath = Environment.ProcessPath ?? Application.ExecutablePath;
+            var script = $@"@echo off
+netsh advfirewall firewall add rule name=""Universal PC Remote (TCP 51234)"" dir=in action=allow protocol=TCP localport=51234 profile=any
+netsh advfirewall firewall add rule name=""Universal PC Remote (UDP 51235)"" dir=in action=allow protocol=UDP localport=51235 profile=any
+if exist ""{exePath}"" (
+    netsh advfirewall firewall add rule name=""Universal PC Remote Companion App"" dir=in action=allow program=""{exePath}"" enable=yes profile=any
+)
+";
+            var tempBat = Path.Combine(Path.GetTempPath(), "setup_pcremote_firewall.bat");
+            File.WriteAllText(tempBat, script);
+
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/c \"\"{tempBat}\"\"",
+                Verb = "runas",
+                UseShellExecute = true,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
+            };
+            var proc = System.Diagnostics.Process.Start(psi);
+            proc?.WaitForExit(6000);
+
+            try { File.Delete(tempBat); } catch { }
+
+            MessageBox.Show(
+                "Windows Defender Firewall rules have been successfully registered!\n\n• TCP Port 51234 (WebSocket Commands)\n• UDP Port 51235 (Discovery Beacon)\n• Application Exemption",
+                "Firewall Configured",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information
+            );
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Failed to configure firewall: {ex.Message}\n\nMake sure to approve the Administrator prompt or run scripts\\setup_firewall.bat.",
+                "Firewall Setup",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning
+            );
+        }
+    }
+
+    protected override void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        StartServices();
+
+        if (Environment.GetCommandLineArgs().Any(arg => string.Equals(arg, "--minimized", StringComparison.OrdinalIgnoreCase)))
+        {
+            BeginInvoke(() =>
+            {
+                Hide();
+                ShowInTaskbar = false;
+            });
         }
     }
 

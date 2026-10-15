@@ -23,3 +23,8 @@ android/local.properties
 Thumbs.db
 [Dd]esktop.ini
 $RECYCLE.BIN/
+
+# Large binaries for web downloads (hosted on GitHub Releases instead of git tree)
+website/downloads/*.zip
+website/downloads/*.apk
+

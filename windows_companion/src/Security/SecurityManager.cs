@@ -41,14 +41,17 @@ public class SecurityManager
     private readonly object _lock = new();
     private readonly Dictionary<string, TrustedDeviceRecord> _trustedDevices = new();
     private readonly string _storageFilePath;
-    private PairingRequestInfo? _activePairing;
+    // A pairing request belongs to a device, not to the server globally.  The
+    // previous single-slot implementation caused a second phone to invalidate
+    // the first phone's PIN.
+    private readonly Dictionary<string, PairingRequestInfo> _activePairings = new();
 
-    public event Action<string, string>? PairingCodeGenerated; // pin, deviceName
-    public event Action? PairingCodeExpired;
+    public event Action<string, string, string>? PairingCodeGenerated; // deviceId, pin, deviceName
+    public event Action<string>? PairingCodeExpired; // deviceId
     public event Action<TrustedDeviceRecord>? DevicePaired;
     public event Action<string>? DeviceRevoked;
 
-    public string? CurrentPairingPin => _activePairing is { IsExpired: false } ? _activePairing.Pin : null;
+    public string? CurrentPairingPin => GetActivePairings().FirstOrDefault()?.Pin;
 
     public SecurityManager()
     {
@@ -74,6 +77,7 @@ public class SecurityManager
 
     public string InitiatePairing(string deviceId, string deviceName)
     {
+        PairingRequestInfo request;
         lock (_lock)
         {
             // Generate a secure 6-digit random PIN
@@ -82,75 +86,72 @@ public class SecurityManager
             var pinNum = (BitConverter.ToUInt32(randomBytes, 0) % 900000) + 100000;
             var pin = pinNum.ToString("D6");
 
-            _activePairing = new PairingRequestInfo(pin, deviceId, deviceName, TimeSpan.FromSeconds(120));
-
-            AppLogger.Instance.Info("Security", $"Pairing PIN generated for device '{deviceName}' ({deviceId}). Expires in 120s.");
-            PairingCodeGenerated?.Invoke(pin, deviceName);
-
-            return pin;
+            request = new PairingRequestInfo(pin, deviceId, deviceName, TimeSpan.FromSeconds(120));
+            _activePairings[deviceId] = request;
         }
+
+        AppLogger.Instance.Info("Security", $"Pairing PIN generated for device '{deviceName}' ({deviceId}). Expires in 120s.");
+        PairingCodeGenerated?.Invoke(deviceId, request.Pin, deviceName);
+        _ = ExpirePairingAsync(deviceId, request);
+        return request.Pin;
     }
 
     public bool VerifyPairing(string deviceId, string pin, out string? authToken, out string? errorMessage)
     {
+        var pairingExpired = false;
+        var pairedRecord = default(TrustedDeviceRecord);
+        var paired = false;
         lock (_lock)
         {
             authToken = null;
             errorMessage = null;
 
-            if (_activePairing == null || _activePairing.IsExpired)
+            if (!_activePairings.TryGetValue(deviceId, out var activePairing) || activePairing.IsExpired)
             {
-                _activePairing = null;
-                PairingCodeExpired?.Invoke();
+                _activePairings.Remove(deviceId);
+                pairingExpired = true;
                 errorMessage = "Pairing session has expired or was not initiated. Please request a new pairing code.";
-                return false;
             }
-
-            if (_activePairing.DeviceId != deviceId)
+            else if (activePairing.FailedAttempts >= 5)
             {
-                errorMessage = "Pairing request mismatch. Device ID does not match active request.";
-                return false;
-            }
-
-            if (_activePairing.FailedAttempts >= 5)
-            {
-                _activePairing = null;
-                PairingCodeExpired?.Invoke();
+                _activePairings.Remove(deviceId);
+                pairingExpired = true;
                 errorMessage = "Too many failed attempts. Pairing cancelled for security.";
-                return false;
             }
-
-            if (!string.Equals(_activePairing.Pin, pin.Trim(), StringComparison.Ordinal))
+            else if (!string.Equals(activePairing.Pin, pin.Trim(), StringComparison.Ordinal))
             {
-                _activePairing.FailedAttempts++;
+                activePairing.FailedAttempts++;
                 errorMessage = "Invalid pairing code. Please check the code displayed on your PC screen.";
-                return false;
             }
+            else
+            {
+                // PIN is correct! Generate a high-entropy auth token.
+                var tokenBytes = new byte[32];
+                RandomNumberGenerator.Fill(tokenBytes);
+                authToken = Convert.ToHexString(tokenBytes).ToLowerInvariant();
 
-            // PIN is correct! Generate a high-entropy auth token
-            var tokenBytes = new byte[32];
-            RandomNumberGenerator.Fill(tokenBytes);
-            authToken = Convert.ToHexString(tokenBytes).ToLowerInvariant();
+                pairedRecord = new TrustedDeviceRecord(
+                    deviceId,
+                    activePairing.DeviceName,
+                    HashToken(authToken),
+                    DateTime.UtcNow,
+                    DateTime.UtcNow
+                );
 
-            var tokenHash = HashToken(authToken);
-            var record = new TrustedDeviceRecord(
-                deviceId,
-                _activePairing.DeviceName,
-                tokenHash,
-                DateTime.UtcNow,
-                DateTime.UtcNow
-            );
-
-            _trustedDevices[deviceId] = record;
-            SaveTrustedDevices();
-
-            _activePairing = null;
-            PairingCodeExpired?.Invoke();
-            DevicePaired?.Invoke(record);
-
-            AppLogger.Instance.Info("Security", $"Device '{record.DeviceName}' successfully paired and trusted.");
-            return true;
+                _trustedDevices[deviceId] = pairedRecord;
+                SaveTrustedDevices();
+                _activePairings.Remove(deviceId);
+                pairingExpired = true;
+                paired = true;
+            }
         }
+
+        if (pairingExpired) PairingCodeExpired?.Invoke(deviceId);
+        if (!paired) return false;
+
+        DevicePaired?.Invoke(pairedRecord!);
+        AppLogger.Instance.Info("Security", $"Device '{pairedRecord!.DeviceName}' successfully paired and trusted.");
+        return true;
     }
 
     public bool AuthenticateDevice(string deviceId, string authToken, out TrustedDeviceRecord? record)
@@ -203,6 +204,41 @@ public class SecurityManager
         lock (_lock)
         {
             return _trustedDevices.Values.ToList();
+        }
+    }
+
+    public IReadOnlyList<PairingRequestInfo> GetActivePairings()
+    {
+        lock (_lock)
+        {
+            var expired = _activePairings
+                .Where(pair => pair.Value.IsExpired)
+                .Select(pair => pair.Key)
+                .ToList();
+            foreach (var deviceId in expired) _activePairings.Remove(deviceId);
+            return _activePairings.Values.OrderBy(pair => pair.ExpiresAt).ToList();
+        }
+    }
+
+    private async Task ExpirePairingAsync(string deviceId, PairingRequestInfo request)
+    {
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(120));
+            var expired = false;
+            lock (_lock)
+            {
+                if (_activePairings.TryGetValue(deviceId, out var current) && ReferenceEquals(current, request) && current.IsExpired)
+                {
+                    _activePairings.Remove(deviceId);
+                    expired = true;
+                }
+            }
+            if (expired) PairingCodeExpired?.Invoke(deviceId);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Error("Security", "Pairing expiry task failed.", ex);
         }
     }
 

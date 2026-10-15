@@ -4,5 +4,5 @@ class AppConstants {
   static const int discoveryPort = 51235;
   static const String discoveryServiceId = 'UniversalPCRemote';
   static const Duration requestTimeout = Duration(seconds: 6);
-  static const Duration pingInterval = Duration(seconds: 15);
+  static const Duration pingInterval = Duration(seconds: 8);
 }

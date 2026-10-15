@@ -32,6 +32,14 @@ public class MediaCommandHandler : ICommandHandler
                 _controller.Stop();
                 return Task.FromResult(ResponseEnvelope.CreateSuccess(envelope.RequestId, envelope.Type));
 
+            case CommandTypes.MediaSeekBackward:
+                _controller.SeekBackward();
+                return Task.FromResult(ResponseEnvelope.CreateSuccess(envelope.RequestId, envelope.Type));
+
+            case CommandTypes.MediaSeekForward:
+                _controller.SeekForward();
+                return Task.FromResult(ResponseEnvelope.CreateSuccess(envelope.RequestId, envelope.Type));
+
             case CommandTypes.MediaVolumeUp:
                 int upSteps = 1;
                 if (envelope.Payload?.TryGetProperty("steps", out var usProp) == true) upSteps = usProp.GetInt32();

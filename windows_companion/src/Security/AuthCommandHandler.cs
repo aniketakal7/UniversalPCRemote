@@ -54,8 +54,12 @@ public class AuthCommandHandler : ICommandHandler
         try
         {
             var doc = envelope.Payload.Value;
-            var deviceId = doc.TryGetProperty("deviceId", out var dIdProp) ? dIdProp.GetString() : null;
-            var deviceName = doc.TryGetProperty("deviceName", out var dNameProp) ? dNameProp.GetString() : "Unknown Phone";
+            var deviceId = doc.TryGetProperty("deviceId", out var dIdProp)
+                ? (dIdProp.ValueKind == JsonValueKind.String ? dIdProp.GetString() : dIdProp.ToString())
+                : null;
+            var deviceName = doc.TryGetProperty("deviceName", out var dNameProp)
+                ? (dNameProp.ValueKind == JsonValueKind.String ? dNameProp.GetString() : dNameProp.ToString())
+                : "Unknown Phone";
 
             if (string.IsNullOrWhiteSpace(deviceId))
             {
@@ -110,8 +114,12 @@ public class AuthCommandHandler : ICommandHandler
         try
         {
             var doc = envelope.Payload.Value;
-            var deviceId = doc.TryGetProperty("deviceId", out var dIdProp) ? dIdProp.GetString() : session.DeviceId;
-            var pin = doc.TryGetProperty("pin", out var pinProp) ? pinProp.GetString() : null;
+            var deviceId = doc.TryGetProperty("deviceId", out var dIdProp)
+                ? (dIdProp.ValueKind == JsonValueKind.String ? dIdProp.GetString() : dIdProp.ToString())
+                : session.DeviceId;
+            var pin = doc.TryGetProperty("pin", out var pinProp)
+                ? (pinProp.ValueKind == JsonValueKind.String ? pinProp.GetString() : pinProp.ToString())
+                : null;
 
             if (string.IsNullOrWhiteSpace(deviceId) || string.IsNullOrWhiteSpace(pin))
             {

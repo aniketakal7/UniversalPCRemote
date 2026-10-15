@@ -1,5 +1,4 @@
 using System.Net.WebSockets;
-using System.Text;
 using System.Text.Json;
 using UniversalPCRemote.Companion.Protocol;
 
@@ -22,20 +21,23 @@ public class DeviceSession
         Socket = socket;
     }
 
+    // Reusable buffer per session to avoid per-send allocations
+    private readonly MemoryStream _sendBuffer = new(1024);
+
     public async Task SendResponseAsync(ResponseEnvelope response, CancellationToken cancellationToken = default)
     {
         if (Socket.State != WebSocketState.Open) return;
-
-        var json = JsonSerializer.Serialize(response);
-        var bytes = Encoding.UTF8.GetBytes(json);
 
         await _sendLock.WaitAsync(cancellationToken);
         try
         {
             if (Socket.State == WebSocketState.Open)
             {
+                _sendBuffer.SetLength(0);
+                JsonSerializer.Serialize(_sendBuffer, response);
+
                 await Socket.SendAsync(
-                    new ArraySegment<byte>(bytes),
+                    new ArraySegment<byte>(_sendBuffer.GetBuffer(), 0, (int)_sendBuffer.Length),
                     WebSocketMessageType.Text,
                     true,
                     cancellationToken

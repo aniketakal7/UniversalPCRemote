@@ -40,6 +40,18 @@ public class MediaController
         AppLogger.Instance.Debug("Media", "Simulated Stop media key.");
     }
 
+    public void SeekBackward()
+    {
+        SendMediaKey(0x25); // Left Arrow: seek backward in common video players and browsers
+        AppLogger.Instance.Debug("Media", "Sent seek backward key.");
+    }
+
+    public void SeekForward()
+    {
+        SendMediaKey(0x27); // Right Arrow: seek forward in common video players and browsers
+        AppLogger.Instance.Debug("Media", "Sent seek forward key.");
+    }
+
     public void VolumeUp(int steps = 1)
     {
         for (int i = 0; i < steps; i++)
@@ -66,8 +78,10 @@ public class MediaController
 
     private static void SendMediaKey(ushort vk)
     {
+        // Use SpinWait micro-delay (~50μs) instead of Thread.Sleep(10) for
+        // near-instant key press registration without blocking 10ms.
         NativeInputSimulator.Instance.SendVirtualKey(vk, true);
-        Thread.Sleep(10);
+        Thread.SpinWait(3000);
         NativeInputSimulator.Instance.SendVirtualKey(vk, false);
     }
 }

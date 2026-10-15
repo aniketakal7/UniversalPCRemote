@@ -114,4 +114,22 @@ public class ProtocolAndSecurityTests
         var authAfterRevoke = security.AuthenticateDevice(deviceId, token, out _);
         Assert.False(authAfterRevoke);
     }
+
+    [Fact]
+    public void PairingFlow_AllowsTwoDevicesToPairConcurrently()
+    {
+        var security = new SecurityManager();
+        var firstDevice = "phone-a-" + Guid.NewGuid().ToString("N")[..8];
+        var secondDevice = "phone-b-" + Guid.NewGuid().ToString("N")[..8];
+
+        var firstPin = security.InitiatePairing(firstDevice, "Phone A");
+        var secondPin = security.InitiatePairing(secondDevice, "Phone B");
+
+        Assert.Equal(2, security.GetActivePairings().Count);
+        Assert.True(security.VerifyPairing(firstDevice, firstPin, out var firstToken, out var firstError), firstError);
+        Assert.NotNull(firstToken);
+        Assert.True(security.VerifyPairing(secondDevice, secondPin, out var secondToken, out var secondError), secondError);
+        Assert.NotNull(secondToken);
+        Assert.Empty(security.GetActivePairings());
+    }
 }

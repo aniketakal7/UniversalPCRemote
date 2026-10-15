@@ -7,29 +7,18 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>assets\app_icon.ico</ApplicationIcon>
+    <AssemblyName>UniversalPCRemote</AssemblyName>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Product>Universal PC Remote Companion</Product>
+    <Company>Universal PC Remote</Company>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="UniversalPCRemote.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="src\Applications\**" />
-    <Compile Remove="src\Clipboard\**" />
-    <Compile Remove="src\Diagnostics\**" />
-    <Compile Remove="src\Discovery\**" />
-    <Compile Remove="src\Input\**" />
-    <Compile Remove="src\Logging\**" />
-    <Compile Remove="src\Macros\**" />
-    <Compile Remove="src\Media\**" />
-    <Compile Remove="src\Protocol\**" />
-    <Compile Remove="src\Security\**" />
-    <Compile Remove="src\Server\**" />
-    <Compile Remove="src\System\**" />
   </ItemGroup>
 
 </Project>

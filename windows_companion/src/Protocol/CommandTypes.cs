@@ -26,6 +26,8 @@ public static class CommandTypes
     public const string MediaNext = "media.next";
     public const string MediaPrevious = "media.previous";
     public const string MediaStop = "media.stop";
+    public const string MediaSeekBackward = "media.seek_backward";
+    public const string MediaSeekForward = "media.seek_forward";
     public const string MediaVolumeUp = "media.volume_up";
     public const string MediaVolumeDown = "media.volume_down";
     public const string MediaVolumeMute = "media.volume_mute";
@@ -65,4 +67,5 @@ public static class ErrorCodes
     public const string InvalidPayload = "INVALID_PAYLOAD";
     public const string ExecutionFailed = "EXECUTION_FAILED";
     public const string RateLimited = "RATE_LIMITED";
+    public const string ControllerInUse = "CONTROLLER_IN_USE";
 }

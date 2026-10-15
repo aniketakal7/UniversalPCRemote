@@ -18,6 +18,10 @@ public class CompanionWebSocketServer
     private readonly int _port;
     private readonly CommandRegistry _commandRegistry;
     private readonly ConcurrentDictionary<string, DeviceSession> _activeSessions = new();
+    private readonly object _controllerLock = new();
+    private string? _inputControllerConnectionId;
+    private DateTime _inputControllerLastActivity = DateTime.MinValue;
+    private static readonly TimeSpan InputControlLease = TimeSpan.FromSeconds(10);
     private WebApplication? _app;
     private CancellationTokenSource? _cts;
     private bool _isRunning;
@@ -49,7 +53,8 @@ public class CompanionWebSocketServer
         {
             var appBuilder = WebApplication.CreateBuilder(new WebApplicationOptions
             {
-                EnvironmentName = "Production"
+                EnvironmentName = "Production",
+                ContentRootPath = AppContext.BaseDirectory
             });
 
             // Suppress noisy default console logging from ASP.NET Core
@@ -65,12 +70,15 @@ public class CompanionWebSocketServer
 
             _app.UseWebSockets(new WebSocketOptions
             {
-                KeepAliveInterval = TimeSpan.FromSeconds(20),
+                KeepAliveInterval = TimeSpan.FromSeconds(5),
             });
 
             _app.Use(async (context, next) =>
             {
-                if (context.Request.Path == "/remote" || context.Request.Path == "/ws" || context.Request.Path == "/")
+                var path = context.Request.Path.Value?.TrimEnd('/') ?? "";
+                if (path.Equals("/remote", StringComparison.OrdinalIgnoreCase) ||
+                    path.Equals("/ws", StringComparison.OrdinalIgnoreCase) ||
+                    string.IsNullOrEmpty(path))
                 {
                     if (context.WebSockets.IsWebSocketRequest)
                     {
@@ -81,6 +89,7 @@ public class CompanionWebSocketServer
                     else
                     {
                         // Health check HTTP endpoint
+                        context.Response.Headers["Access-Control-Allow-Origin"] = "*";
                         context.Response.ContentType = "application/json";
                         await context.Response.WriteAsync(JsonSerializer.Serialize(new
                         {
@@ -169,8 +178,8 @@ public class CompanionWebSocketServer
         AppLogger.Instance.Info("Server", $"Client connected from {remoteIp ?? "unknown IP"} (ConnID: {session.ConnectionId})", connId: session.ConnectionId);
         ClientConnected?.Invoke(session);
 
-        var buffer = new byte[8192];
-        var memoryStream = new MemoryStream();
+        var buffer = new byte[16384];
+        var memoryStream = new MemoryStream(16384);
 
         try
         {
@@ -206,7 +215,7 @@ public class CompanionWebSocketServer
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
                     session.LastActivity = DateTime.UtcNow;
-                    var messageText = Encoding.UTF8.GetString(memoryStream.ToArray());
+                    var messageText = Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Length);
                     await HandleIncomingMessageAsync(messageText, session);
                 }
             }
@@ -225,6 +234,7 @@ public class CompanionWebSocketServer
         }
         finally
         {
+            ReleaseInputControl(session);
             _activeSessions.TryRemove(session.ConnectionId, out _);
             AppLogger.Instance.Info("Server", $"Client disconnected (ConnID: {session.ConnectionId})", connId: session.ConnectionId);
             ClientDisconnected?.Invoke(session);
@@ -276,8 +286,68 @@ public class CompanionWebSocketServer
             return;
         }
 
-        // Route command to command registry
+        // The PC has one keyboard and pointer.  Keep one client in control for
+        // the duration of its socket so simultaneous phones cannot interleave
+        // mouse-down/up or keystrokes.
+        if (session.IsAuthenticated && IsInputCommand(envelope.Type) && !TryAcquireInputControl(session))
+        {
+            await session.SendResponseAsync(ResponseEnvelope.CreateError(
+                envelope.RequestId,
+                envelope.Type,
+                ErrorCodes.ControllerInUse,
+                "Another connected device is controlling keyboard and mouse input. Disconnect it or wait for it to release the session."
+            ));
+            return;
+        }
+
+        // Route command to command registry.
         var response = await _commandRegistry.RouteAsync(envelope, session);
-        await session.SendResponseAsync(response);
+        if (ShouldRespond(envelope) || !response.Success)
+        {
+            await session.SendResponseAsync(response);
+        }
+    }
+
+    private static bool IsInputCommand(string commandType) => commandType is
+        CommandTypes.MouseMove or CommandTypes.MouseClick or CommandTypes.MouseDown or
+        CommandTypes.MouseUp or CommandTypes.MouseScroll or CommandTypes.KeyboardText or
+        CommandTypes.KeyboardKey or CommandTypes.KeyboardCombination;
+
+    private static bool ShouldRespond(CommandEnvelope envelope)
+    {
+        return envelope.Payload?.TryGetProperty("_noResponse", out var noResponse) != true ||
+               noResponse.ValueKind != JsonValueKind.True;
+    }
+
+    private bool TryAcquireInputControl(DeviceSession session)
+    {
+        lock (_controllerLock)
+        {
+            if (_inputControllerConnectionId == null)
+            {
+                _inputControllerConnectionId = session.ConnectionId;
+            }
+            else if (_inputControllerConnectionId != session.ConnectionId &&
+                     DateTime.UtcNow - _inputControllerLastActivity > InputControlLease)
+            {
+                _inputControllerConnectionId = session.ConnectionId;
+            }
+
+            var ownsControl = _inputControllerConnectionId == session.ConnectionId;
+            if (ownsControl) _inputControllerLastActivity = DateTime.UtcNow;
+            return ownsControl;
+        }
+    }
+
+    private void ReleaseInputControl(DeviceSession session)
+    {
+        lock (_controllerLock)
+        {
+            if (_inputControllerConnectionId == session.ConnectionId)
+            {
+                _inputControllerConnectionId = null;
+                _inputControllerLastActivity = DateTime.MinValue;
+            }
+        }
     }
 }

@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal PC Remote — Ultra Low-Latency PC Control Deck</title>
+  <meta name="description" content="Turn your smartphone into a zero-cloud precision trackpad, keyboard, and workstation control deck for Windows. 100% Local Wi-Fi, 8ms latency, zero telemetry.">
+  <link rel="icon" type="image/png" href="assets/app_icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --bg-radial: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.18) 0%, rgba(11, 13, 19, 0) 70%);
+      --surface: #12151d;
+      --card: #171a23;
+      --card-elevated: #1e232f;
+      --border: #262b37;
+      --border-focus: #3b82f6;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-light: #60a5fa;
+      --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #ef4444;
+      --accent-purple: #6366f1;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+      --shadow-glow: 0 0 32px rgba(37, 99, 235, 0.25);
+      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --bg-radial: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12) 0%, rgba(248, 250, 252, 0) 70%);
+      --surface: #ffffff;
+      --card: #ffffff;
+      --card-elevated: #f1f5f9;
+      --border: #e2e8f0;
+      --border-focus: #2563eb;
+      --text: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --shadow-glow: 0 0 32px rgba(37, 99, 235, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      background-image: var(--bg-radial);
+      background-repeat: no-repeat;
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Ambient Spotlight */
+    .spotlight {
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(50px);
+    }
+
+    /* Navbar */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(11, 13, 19, 0.82);
+      border-bottom: 1px solid var(--border);
+    }
+
+    [data-theme="light"] header {
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 76px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    }
+
+    .brand-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--card-elevated);
+      color: var(--primary-light);
+      border: 1px solid var(--border);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .theme-toggle-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .btn-nav {
+      background: var(--primary-gradient);
+      color: #fff !important;
+      padding: 10px 22px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      text-decoration: none;
+      box-shadow: 0 4px 14px var(--shadow-glow);
+    }
+
+    .btn-nav:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
+
+    /* Device Detection Pill */
+    .device-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary-light);
+      margin-bottom: 24px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 10px var(--accent-green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.6; }
+    }
+
+    /* Hero */
+    .hero {
+      padding: 70px 0 60px;
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 50px;
+      align-items: center;
+    }
+
+    .hero-content h1 {
+      font-size: 3.8rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, var(--text) 30%, var(--primary-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-content p {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 36px;
+      max-width: 580px;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .btn-hero {
+      padding: 16px 26px;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+
+    .btn-hero-primary {
+      background: var(--primary-gradient);
+      color: #fff;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(37, 99, 235, 0.45);
+    }
+
+    .btn-hero-secondary {
+      background: var(--card);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-hero-secondary:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      background: var(--card-elevated);
+    }
+
+    .btn-title {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .btn-sub {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      opacity: 0.8;
+      margin-top: 1px;
+    }
+
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+      font-family: var(--font-mono);
+    }
+
+    .stat-lbl {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Interactive Phone Mockup in Hero */
+    .mockup-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .phone-mockup {
+      width: 330px;
+      height: 670px;
+      background: var(--surface);
+      border-radius: 46px;
+      border: 7px solid #232836;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(37, 99, 235, 0.15);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    [data-theme="light"] .phone-mockup {
+      border-color: #cbd5e1;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .phone-notch {
+      width: 120px;
+      height: 22px;
+      background: #232836;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 0 0 14px 14px;
+      z-index: 10;
+    }
+
+    .phone-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 34px 14px 18px;
+      background: var(--bg);
+      user-select: none;
+    }
+
+    .phone-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .phone-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+
+    .phone-status-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Phone Shortcut Dock */
+    .phone-dock {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      scrollbar-width: none;
+    }
+
+    .phone-dock::-webkit-scrollbar { display: none; }
+
+    .phone-dock-chip {
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: 8px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .phone-dock-chip:hover {
+      border-color: var(--primary);
+    }
+
+    /* Phone Interactive Trackpad Area */
+    .interactive-pad {
+      flex: 1;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: crosshair;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .interactive-pad:hover {
+      border-color: var(--primary);
+    }
+
+    .pad-label {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      pointer-events: none;
+    }
+
+    .pad-touch-dot {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(37, 99, 235, 0.25);
+      border: 2px solid var(--primary-light);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      display: none;
+      box-shadow: 0 0 16px var(--primary);
+    }
+
+    .pad-hud {
+      position: absolute;
+      top: 14px;
+      background: rgba(18, 21, 29, 0.9);
+      border: 1px solid var(--primary);
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary-light);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    /* Phone Physical Mouse Buttons */
+    .phone-buttons-deck {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .phone-mouse-btn {
+      flex: 1;
+      padding: 12px 6px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card-elevated);
+      color: var(--text);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .phone-mouse-btn:active, .phone-mouse-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Floating Tooltip Callout */
+    .mockup-callout {
+      position: absolute;
+      right: -24px;
+      bottom: 60px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px 18px;
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* QR Code Hub Section */
+    .qr-banner-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 44px;
+      margin: 40px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .qr-banner-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .qr-banner-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .qr-banner-desc {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      margin-bottom: 24px;
+    }
+
+    .qr-card-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+    }
+
+    .qr-canvas-wrapper {
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 18px;
+      display: inline-block;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    }
+
+    .qr-canvas-wrapper canvas, .qr-canvas-wrapper img {
+      display: block;
+      width: 190px;
+      height: 190px;
+    }
+
+    .lan-url-tag {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--primary-light);
+      background: var(--card-elevated);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: inline-block;
+      margin-top: 14px;
+      word-break: break-all;
+    }
+
+    /* Interactive Feature Mode Switcher */
+    .modes-section {
+      padding: 40px 0 80px;
+    }
+
+    .section-headline {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 48px;
+    }
+
+    .section-eyebrow {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary-light);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 14px;
+    }
+
+    .section-sub {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    .tab-pills {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .tab-pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 16px var(--primary-glow);
+    }
+
+    .mode-display-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+    }
+
+    .mode-visual {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 320px;
+      position: relative;
+    }
+
+    /* Comparison Table */
+    .comparison-section {
+      padding: 40px 0 80px;
+    }
+
+    .comp-table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .comp-table th {
+      padding: 20px 24px;
+      background: var(--card);
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comp-table td {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+
+    .comp-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .highlight-col {
+      background: rgba(37, 99, 235, 0.06);
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .badge-check {
+      color: var(--accent-green);
+      font-weight: 800;
+    }
+
+    .badge-cross {
+      color: var(--accent-rose);
+      font-weight: 800;
+    }
+
+    /* Downloads Grid */
+    .downloads-section {
+      padding: 40px 0 80px;
+    }
+
+    .download-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+
+    .dl-package-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .dl-package-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .dl-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .dl-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    .dl-name {
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+
+    .dl-version {
+      font-size: 0.85rem;
+      color: var(--primary-light);
+      font-weight: 600;
+    }
+
+    .dl-specs {
+      list-style: none;
+      margin: 20px 0 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .dl-specs li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+    }
+
+    .btn-dl-large {
+      background: var(--primary-gradient);
+      color: #fff;
+      padding: 16px 28px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn-dl-large:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(37, 99, 235, 0.45);
+    }
+
+    /* FAQ Accordion */
+    .faq-section {
+      padding: 40px 0 80px;
+    }
+
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 22px 28px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-answer {
+      padding: 0 28px 22px;
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+    }
+
+    .faq-icon {
+      font-size: 1.4rem;
+      transition: transform 0.2s ease;
+      color: var(--primary-light);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 50px 0;
+      color: var(--text-muted);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    .footer-nav {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      list-style: none;
+      margin-bottom: 20px;
+    }
+
+    .footer-nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-nav a:hover {
+      color: var(--text);
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; text-align: center; }
+      .hero-content h1 { font-size: 2.8rem; }
+      .hero-content p { margin: 0 auto 32px; }
+      .hero-cta-group { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .mockup-callout { display: none; }
+      .qr-banner-grid { grid-template-columns: 1fr; text-align: center; }
+      .mode-display-card { grid-template-columns: 1fr; }
+      .download-cards-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="spotlight"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav">
+      <a href="#" class="brand">
+        <img src="assets/app_icon.png" alt="App Icon" class="brand-icon">
+        <span>Universal PC Remote</span>
+        <span class="brand-badge">v1.0.0</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#demo">Live Demo</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#gestures">Gestures</a></li>
+        <li><a href="#comparison">Compare</a></li>
+        <li><a href="#downloads">Downloads</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button id="themeToggle" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">🌙</button>
+        <a href="#downloads" class="btn-nav">Get App</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <div class="device-pill">
+            <span class="live-dot"></span>
+            <span id="detectionMessage">100% Peer-to-Peer • Zero Telemetry • Offline LAN</span>
+          </div>
+
+          <h1>
+            Your Smartphone, Now a <span class="text-gradient">Precision PC Remote Deck</span>.
+          </h1>
+
+          <p>
+            Control your Windows PC with an ultra-responsive multi-touch trackpad, virtual keyboard, media deck, and instant shortcut dock over local Wi-Fi. No accounts, no cloud relays, zero lag.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="downloads/UniversalPCRemote.apk" download class="btn-hero btn-hero-primary" id="primaryDownloadBtn">
+              <span style="font-size: 1.6rem;">📱</span>
+              <div class="btn-meta">
+                <span class="btn-title">Download Android APK</span>
+                <span class="btn-sub">v1.0.0 Release • 23.6 MB</span>
+              </div>
+            </a>
+
+            <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download class="btn-hero btn-hero-secondary">
+              <span style="font-size: 1.6rem;">💻</span>
+              <div class="btn-meta">
+                <span class="btn-title">Download Windows Companion</span>
+                <span class="btn-sub">Portable x64 ZIP • 77.6 MB</span>
+              </div>
+            </a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <span class="stat-val">8ms</span>
+              <span class="stat-lbl">Motion Interval</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-val">0%</span>
+              <span class="stat-lbl">Cloud Dependency</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-val">6-Digit</span>
+              <span class="stat-lbl">Crypto PIN Auth</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-val">100%</span>
+              <span class="stat-lbl">Free & Private</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Phone Mockup Demo -->
+        <div class="mockup-container" id="demo">
+          <div class="phone-mockup">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="phone-top-bar">
+                <span class="phone-title">Precision Trackpad</span>
+                <span class="phone-status-pill">● PC Linked</span>
+              </div>
+
+              <!-- Quick Shortcut Dock in Phone -->
+              <div class="phone-dock">
+                <div class="phone-dock-chip" onclick="demoShortcut('Esc')">Esc</div>
+                <div class="phone-dock-chip" onclick="demoShortcut('Alt+Tab')">Alt+Tab</div>
+                <div class="phone-dock-chip" onclick="demoShortcut('Win+E')">Win+E</div>
+                <div class="phone-dock-chip" onclick="demoShortcut('Ctrl+Z')">Ctrl+Z</div>
+                <div class="phone-dock-chip" onclick="demoShortcut('Ctrl+C')">Ctrl+C</div>
+                <div class="phone-dock-chip" onclick="demoShortcut('Ctrl+V')">Ctrl+V</div>
+              </div>
+
+              <!-- Interactive Trackpad -->
+              <div class="interactive-pad" id="interactivePad">
+                <div class="pad-touch-dot" id="touchDot"></div>
+                <div class="pad-hud" id="padHud">Left Click</div>
+                <div class="pad-label" id="padLabel">
+                  <div style="font-size: 1.8rem; margin-bottom: 6px;">👆</div>
+                  <strong style="color: var(--text);">Interactive Demo Pad</strong><br>
+                  Swipe, tap, or click here to test!
+                </div>
+              </div>
+
+              <!-- Physical Buttons Deck -->
+              <div class="phone-buttons-deck">
+                <button class="phone-mouse-btn" id="btnLeft" onclick="demoClick('Left Click')">LEFT</button>
+                <button class="phone-mouse-btn" id="btnMiddle" onclick="demoClick('Middle Click')">MID</button>
+                <button class="phone-mouse-btn" id="btnRight" onclick="demoClick('Right Click')">RIGHT</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mockup-callout">
+            <span style="font-size: 1.3rem;">⚡</span>
+            <span>Interactive Live Demo — Try Swiping!</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QR Code Scan & Install Banner -->
+    <section class="qr-banner-section">
+      <div class="qr-banner-grid">
+        <div>
+          <span class="section-eyebrow">Instant Mobile Install</span>
+          <h2 class="qr-banner-title">Scan from your phone to download immediately</h2>
+          <p class="qr-banner-desc">
+            Point your mobile camera at this QR code. Your phone will immediately download the Android APK file over your local network — no USB cable or play store login required.
+          </p>
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <a href="downloads/UniversalPCRemote.apk" download class="btn-nav">Download APK Directly</a>
+            <span class="lan-url-tag" id="mobileApkUrl">UniversalPCRemote.apk</span>
+          </div>
+        </div>
+
+        <div class="qr-card-box">
+          <div class="qr-canvas-wrapper" id="qrCanvasContainer">
+            <img id="qrCodeImg" src="" alt="Mobile Install QR Code">
+          </div>
+          <div style="font-size: 0.85rem; font-weight: 700; margin-top: 10px; color: var(--text);">
+            Scan to Download APK
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+            Works with any phone camera or QR scanner
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Mode Explorer Section -->
+    <section class="modes-section" id="features">
+      <div class="section-headline">
+        <span class="section-eyebrow">Suite Overview</span>
+        <h2 class="section-title">Built for every desktop scenario</h2>
+        <p class="section-sub">Switch between full trackpad, hotkey deck, media transport, and workstation controls in milliseconds.</p>
+      </div>
+
+      <div class="tab-pills">
+        <button class="tab-pill active" onclick="switchMode(0)">🖱️ Trackpad & Gestures</button>
+        <button class="tab-pill" onclick="switchMode(1)">⌨️ Keyboard & Shortcuts</button>
+        <button class="tab-pill" onclick="switchMode(2)">🎵 Media Transport</button>
+        <button class="tab-pill" onclick="switchMode(3)">🔒 Security & Pairing</button>
+        <button class="tab-pill" onclick="switchMode(4)">⚡ Power & Workstation</button>
+      </div>
+
+      <div class="mode-display-card" id="modeCard">
+        <div>
+          <h3 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 14px;" id="modeTitle">Precision Multi-Touch Trackpad</h3>
+          <p style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.6; margin-bottom: 24px;" id="modeDesc">
+            Features standard Windows Precision multi-finger gestures: 2-finger tap right click, 2-finger scroll, 3-finger swipe up for Task View, 3-finger swipe down for Desktop, and 4-finger virtual desktop switching.
+          </p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="modeTags">
+            <span class="tag">8ms Interval</span>
+            <span class="tag">Drag Lock</span>
+            <span class="tag">2-Finger Tap</span>
+            <span class="tag">Scroll Strip</span>
+          </div>
+        </div>
+
+        <div class="mode-visual" id="modeVisual">
+          <div style="font-size: 3.5rem; margin-bottom: 16px;">🖐️</div>
+          <div style="font-weight: 700; font-size: 1.15rem; color: var(--text);">Multi-Finger Precision</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; max-width: 280px; margin-top: 6px;">
+            Smooth pointer acceleration, instant HUD gesture feedback, and micro-haptic ticks.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multi-Finger Gestures Table -->
+    <section id="gestures" style="padding-bottom: 80px;">
+      <div class="section-headline">
+        <span class="section-eyebrow">Laptop-Grade Gestures</span>
+        <h2 class="section-title">Windows Precision Gestures Built-in</h2>
+        <p class="section-sub">No training curve. It recognizes the exact same gestures you use on Windows laptops.</p>
+      </div>
+
+      <div class="comp-table-card">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Gesture</th>
+              <th>Action</th>
+              <th>Triggered Hotkey</th>
+              <th>Feel</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1-Finger Tap</strong></td>
+              <td>Left Click</td>
+              <td><span style="font-family: var(--font-mono); color: var(--primary-light);">Left Mouse</span></td>
+              <td>Instant Click</td>
+            </tr>
+            <tr>
+              <td><strong>2-Finger Tap</strong></td>
+              <td>Right Click / Context Menu</td>
+              <td><span style="font-family: var(--font-mono); color: var(--primary-light);">Right Mouse</span></td>
+              <td>Haptic Tap</td>
+            </tr>
+            <tr>
+              <td><strong>2-Finger Drag</strong></td>
+              <td>Smooth 2D Wheel Scroll</td>
+              <td><span style="font-family: var(--font-mono); color: var(--primary-light);">Mouse Scroll (X/Y)</span></td>
+              <td>Frictionless</td>
+            </tr>
+            <tr>
+              <td><strong>3-Finger Tap</strong></td>
+              <td>Windows Search</td>
+              <td><span style="font-family: var(--font-mono); color: var(--primary-light);">Win + S</span></td>
+              <td>Action Tick</td>
+            </tr>
+            <tr>
+              <td><strong>3-Finger Swipe UP</strong></td>
+              <td>Task View / All Windows</td>
+              <td><span style="font-family: var(--font-mono); color: var(--primary-light);">Win + Tab</span></td>
+              <td>HUD Toast</td>
+            </tr>
+            <tr>
+              <td><strong>3-Finger Swipe DOWN</strong></td>
+              <td>Show Desktop / Minimize All</td>
+              <td><span style="font-family: var(--font-mono); color: var(--primary-light);">Win + D</span></td>
+              <td>HUD Toast</td>
+            </tr>
+            <tr>
+              <td><strong>3-Finger Swipe L/R</strong></td>
+              <td>Switch Active App</td>
+              <td><span style="font-family: var(--font-mono); color: var(--primary-light);">Alt + Tab</span></td>
+              <td>HUD Toast</td>
+            </tr>
+            <tr>
+              <td><strong>4-Finger Swipe L/R</strong></td>
+              <td>Switch Virtual Desktop</td>
+              <td><span style="font-family: var(--font-mono); color: var(--primary-light);">Ctrl + Win + ← / →</span></td>
+              <td>Desktop Switch</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Comparison Matrix -->
+    <section class="comparison-section" id="comparison">
+      <div class="section-headline">
+        <span class="section-eyebrow">Architecture Comparison</span>
+        <h2 class="section-title">Peer-to-Peer vs Traditional Solutions</h2>
+        <p class="section-sub">Why users prefer a zero-cloud, direct local network architecture.</p>
+      </div>
+
+      <div class="comp-table-card">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Architecture & Feature</th>
+              <th class="highlight-col">Universal PC Remote</th>
+              <th>Traditional Cloud Remotes</th>
+              <th>Heavy Screen Streamers (RDP/VNC)</th>
+              <th>Ad-Supported Mobile Remotes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Offline LAN (No Cloud)</strong></td>
+              <td class="highlight-col"><span class="badge-check">✔️ 100% Local Wi-Fi</span></td>
+              <td><span class="badge-cross">❌ Cloud Relay Required</span></td>
+              <td><span class="badge-cross">❌ Always Needs Internet</span></td>
+              <td><span class="badge-cross">❌ Cloud Auth Check</span></td>
+            </tr>
+            <tr>
+              <td><strong>Input Latency</strong></td>
+              <td class="highlight-col"><span class="badge-check">⚡ ~8ms Ultra-Low (Local WS)</span></td>
+              <td>⚠️ 30–60ms Lag</td>
+              <td><span class="badge-cross">❌ 80–200ms Video Lag</span></td>
+              <td>⚠️ 30–50ms Lag</td>
+            </tr>
+            <tr>
+              <td><strong>No Account / No Sign-up</strong></td>
+              <td class="highlight-col"><span class="badge-check">✔️ Instant Access (No Login)</span></td>
+              <td><span class="badge-cross">❌ Mandatory Sign-up</span></td>
+              <td><span class="badge-cross">❌ Email & Account Required</span></td>
+              <td><span class="badge-cross">❌ Forced Login Prompts</span></td>
+            </tr>
+            <tr>
+              <td><strong>Multi-Finger Windows Gestures</strong></td>
+              <td class="highlight-col"><span class="badge-check">✔️ Full 1–4 Finger Deck</span></td>
+              <td>⚠️ Basic 1–2 Finger Only</td>
+              <td><span class="badge-cross">❌ No Native Gestures</span></td>
+              <td>⚠️ Limited Gestures</td>
+            </tr>
+            <tr>
+              <td><strong>100% Free & No Ads</strong></td>
+              <td class="highlight-col"><span class="badge-check">✔️ Free Forever (Zero Ads)</span></td>
+              <td>⚠️ Paid In-App Upgrades</td>
+              <td><span class="badge-cross">❌ Expensive Subscriptions</span></td>
+              <td><span class="badge-cross">❌ Annoying Full-Screen Ads</span></td>
+            </tr>
+            <tr>
+              <td><strong>Privacy & Zero Telemetry</strong></td>
+              <td class="highlight-col"><span class="badge-check">🔒 100% Private (Zero Tracking)</span></td>
+              <td>⚠️ Usage Telemetry</td>
+              <td><span class="badge-cross">❌ Session Recording</span></td>
+              <td><span class="badge-cross">❌ Third-Party Ad Trackers</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Downloads Section -->
+    <section class="downloads-section" id="downloads">
+      <div class="section-headline">
+        <span class="section-eyebrow">Get Started Today</span>
+        <h2 class="section-title">Download Universal PC Remote</h2>
+        <p class="section-sub">Available free for Android and Windows 10/11 x64.</p>
+      </div>
+
+      <div class="download-cards-grid">
+        <!-- Android Card -->
+        <div class="dl-package-card">
+          <div>
+            <div class="dl-header">
+              <div class="dl-avatar">🤖</div>
+              <div>
+                <div class="dl-name">Android Client</div>
+                <div class="dl-version">v1.0.0 Release • APK</div>
+              </div>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+              Full mobile control app with multi-touch trackpad, virtual keyboard, media deck, clipboard bridge, and safe power controls.
+            </p>
+            <ul class="dl-specs">
+              <li>✔️ Android 8.0 Oreo or newer</li>
+              <li>✔️ File Size: 23.6 MB</li>
+              <li>✔️ Package: UniversalPCRemote.apk</li>
+              <li>✔️ SHA-256 Verified</li>
+            </ul>
+          </div>
+          <a href="downloads/UniversalPCRemote.apk" download class="btn-dl-large">
+            <span>⬇️</span> Download APK
+          </a>
+        </div>
+
+        <!-- Windows Card -->
+        <div class="dl-package-card">
+          <div>
+            <div class="dl-header">
+              <div class="dl-avatar">🪟</div>
+              <div>
+                <div class="dl-name">Windows Companion</div>
+                <div class="dl-version">v1.0.0 Release • x64 Portable</div>
+              </div>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+              Lightweight native .NET 8 background companion service. Unpack and launch — no installation wizard or registry pollution.
+            </p>
+            <ul class="dl-specs">
+              <li>✔️ Windows 10 / 11 (64-bit)</li>
+              <li>✔️ File Size: 77.6 MB (Portable ZIP)</li>
+              <li>✔️ Zero background bloat</li>
+              <li>✔️ UDP Auto-Discovery Beacon</li>
+            </ul>
+          </div>
+          <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download class="btn-dl-large">
+            <span>⬇️</span> Download Windows ZIP
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Accordion -->
+    <section class="faq-section" id="faq">
+      <div class="section-headline">
+        <span class="section-eyebrow">Frequently Asked Questions</span>
+        <h2 class="section-title">Everything you need to know</h2>
+      </div>
+
+      <div style="max-width: 820px; margin: 0 auto;">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Does this require an internet connection?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            No! Universal PC Remote operates 100% locally over your Wi-Fi router or your phone's mobile hotspot. It does not send any packets over the internet.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Can I use my phone's mobile hotspot if there is no Wi-Fi router?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Yes! Simply turn on your phone's portable hotspot, connect your Windows PC to the hotspot Wi-Fi, and the companion app will automatically discover and pair seamlessly.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>What if Windows Firewall blocks the connection?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            The Windows Companion includes a 1-click button labeled <strong>"Allow in Windows Firewall"</strong> on the Dashboard. Clicking it automatically registers the private network rules for ports 51234 (WebSocket) and 51235 (Discovery).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>How does the 6-digit PIN pairing work?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            When your phone requests to link with your PC, the PC displays a temporary 6-digit PIN. Entering this PIN on your phone completes a cryptographic SHA-256 token exchange and whitelists your device so neighbors on the same Wi-Fi cannot control your screen.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <ul class="footer-nav">
+        <li><a href="#demo">Live Demo</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#gestures">Gestures</a></li>
+        <li><a href="#comparison">Compare</a></li>
+        <li><a href="#downloads">Downloads</a></li>
+      </ul>
+      <p style="margin-bottom: 8px;">Universal PC Remote • Zero Cloud • 100% Peer-to-Peer Desktop Control Deck</p>
+      <p style="font-size: 0.82rem; color: var(--text-muted);">Built with Flutter & .NET 8 • Free & Open Architecture</p>
+    </div>
+  </footer>
+
+  <script>
+    // Theme Management
+    const themeToggle = document.getElementById('themeToggle');
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('upr_theme', theme);
+    }
+    const savedTheme = localStorage.getItem('upr_theme') || 'dark';
+    applyTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // Device Detection for dynamic buttons & messaging
+    const userAgent = navigator.userAgent || '';
+    const isAndroid = /android/i.test(userAgent);
+    const isWindows = /windows/i.test(userAgent);
+    const detectionMsg = document.getElementById('detectionMessage');
+    const primaryBtn = document.getElementById('primaryDownloadBtn');
+
+    if (isAndroid) {
+      detectionMsg.textContent = '📱 Android Device Detected — Ready to Install APK';
+    } else if (isWindows) {
+      detectionMsg.textContent = '💻 Windows PC Detected — Ready to Run Companion';
+    }
+
+    // QR Code URL Calculation
+    const currentOrigin = window.location.origin && window.location.origin !== 'null'
+      ? window.location.origin
+      : 'http://' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+    const currentPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+    const fullApkUrl = currentOrigin + currentPath + 'downloads/UniversalPCRemote.apk';
+
+    const qrImg = document.getElementById('qrCodeImg');
+    const mobileUrlSpan = document.getElementById('mobileApkUrl');
+    if (qrImg) {
+      qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' + encodeURIComponent(fullApkUrl);
+    }
+    if (mobileUrlSpan) {
+      mobileUrlSpan.textContent = fullApkUrl;
+    }
+
+    // Interactive Demo Pad Logic
+    const pad = document.getElementById('interactivePad');
+    const touchDot = document.getElementById('touchDot');
+    const padHud = document.getElementById('padHud');
+    const padLabel = document.getElementById('padLabel');
+
+    function showHud(text) {
+      padHud.textContent = text;
+      padHud.style.opacity = '1';
+      clearTimeout(window._hudTimer);
+      window._hudTimer = setTimeout(() => {
+        padHud.style.opacity = '0';
+      }, 1200);
+    }
+
+    pad.addEventListener('pointerdown', (e) => {
+      const rect = pad.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      touchDot.style.left = x + 'px';
+      touchDot.style.top = y + 'px';
+      touchDot.style.display = 'block';
+      padLabel.style.display = 'none';
+      showHud('Cursor Active');
+    });
+
+    pad.addEventListener('pointermove', (e) => {
+      if (touchDot.style.display === 'block') {
+        const rect = pad.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        touchDot.style.left = x + 'px';
+        touchDot.style.top = y + 'px';
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      touchDot.style.display = 'none';
+    });
+
+    pad.addEventListener('click', () => {
+      showHud('Left Click (1-Finger)');
+    });
+
+    pad.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      showHud('Right Click (2-Finger)');
+    });
+
+    function demoClick(action) {
+      showHud(action);
+    }
+
+    function demoShortcut(key) {
+      showHud(key + ' Sent');
+    }
+
+    // Feature Mode Switcher
+    const modes = [
+      {
+        title: "Precision Multi-Touch Trackpad",
+        desc: "Features standard Windows Precision multi-finger gestures: 2-finger tap right click, 2-finger scroll, 3-finger swipe up for Task View, 3-finger swipe down for Desktop, and 4-finger virtual desktop switching.",
+        tags: ["8ms Interval", "Drag Lock", "2-Finger Tap", "Scroll Strip"],
+        icon: "🖐️",
+        sub: "Smooth pointer acceleration, instant HUD gesture feedback, and micro-haptic ticks."
+      },
+      {
+        title: "Virtual Keyboard & Quick Hotkey Dock",
+        desc: "Full virtual keyboard with Ctrl, Alt, Shift, and Windows modifier toggles, plus an instant 1-tap dock for Esc, Alt+Tab, Win+E, and Task Manager.",
+        tags: ["Modifier Toggles", "Instant Dock", "Unicode Text", "Full Layout"],
+        icon: "⌨️",
+        sub: "Direct text injection and full keyboard shortcuts right on your mobile screen."
+      },
+      {
+        title: "Media Transport Deck",
+        desc: "Dedicated media transport controls directly sending native Windows audio commands: Play/Pause, Next, Previous, Volume Scrub, and Mute for Spotify, YouTube, VLC, and Netflix.",
+        tags: ["Spotify", "YouTube", "VLC", "Master Volume"],
+        icon: "🎵",
+        sub: "Hardware-level media key simulation with volume adjustment."
+      },
+      {
+        title: "Cryptographic PIN Security",
+        desc: "Safe 6-digit PIN verification with SHA-256 session token exchange and auto-revocation. Only your authorized phone can control your computer.",
+        tags: ["SHA-256 Tokens", "6-Digit PIN", "Private Whitelist", "Replay Defense"],
+        icon: "🔒",
+        sub: "100% peer-to-peer security. Zero accounts, zero passwords stored in the cloud."
+      },
+      {
+        title: "Workstation Power & Sleep Deck",
+        desc: "Instant workstation lock, sleep, restart, and shutdown with explicit 2-step confirmations to eliminate accidental power triggers.",
+        tags: ["Win+L Lock", "Sleep State", "Shutdown with Timer", "2-Step Confirm"],
+        icon: "⚡",
+        sub: "Safely put your PC to sleep or lock your screen from across the room."
+      }
+    ];
+
+    function switchMode(idx) {
+      document.querySelectorAll('.tab-pill').forEach((btn, i) => {
+        btn.classList.toggle('active', i === idx);
+      });
+      const m = modes[idx];
+      document.getElementById('modeTitle').textContent = m.title;
+      document.getElementById('modeDesc').textContent = m.desc;
+      document.getElementById('modeVisual').innerHTML = `
+        <div style="font-size: 3.5rem; margin-bottom: 16px;">${m.icon}</div>
+        <div style="font-weight: 700; font-size: 1.15rem; color: var(--text);">${m.title}</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; max-width: 280px; margin-top: 6px;">${m.sub}</div>
+      `;
+      document.getElementById('modeTags').innerHTML = m.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    }
+
+    // FAQ Accordion
+    function toggleFaq(el) {
+      const parent = el.parentElement;
+      parent.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:android_app/main.dart';
 import 'package:android_app/protocol/models.dart';
+import 'package:android_app/state/connection_state.dart';
 
 void main() {
   group('Protocol Models Tests', () {
@@ -77,6 +79,60 @@ void main() {
       expect(find.text('Touchpad & Mouse'), findsOneWidget);
       expect(find.text('LEFT CLICK'), findsOneWidget);
       expect(find.text('RIGHT CLICK'), findsOneWidget);
+    });
+
+    testWidgets('Remotes and Presentation tabs switch smoothly', (WidgetTester tester) async {
+      await tester.pumpWidget(const UniversalRemoteApp());
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Tap on Remotes navigation item
+      await tester.tap(find.text('Remotes'));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // Check Remotes screen tabs
+      expect(find.text('App Remotes'), findsOneWidget);
+      expect(find.text('Slides Deck'), findsOneWidget);
+      expect(find.text('Safe Macros'), findsOneWidget);
+
+      // Tap on Slides Deck
+      await tester.tap(find.text('Slides Deck'));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Presentation Controller'), findsOneWidget);
+      expect(find.text('NEXT SLIDE'), findsOneWidget);
+      expect(find.text('PREVIOUS'), findsOneWidget);
+    });
+
+    testWidgets('Pairing required triggers 6-digit PIN dialog and buttons', (WidgetTester tester) async {
+      final stateManager = ConnectionStateManager();
+      await tester.pumpWidget(MaterialApp(
+        home: HomeScreen(
+          stateManager: stateManager,
+          isDarkMode: true,
+          onToggleTheme: () {},
+        ),
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Initially no dialog
+      expect(find.text('Pairing Security PIN'), findsNothing);
+
+      // Trigger pairingRequired status
+      stateManager.setStatusForTesting(AppConnectionStatus.pairingRequired);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Dialog should now be displayed
+      expect(find.text('Pairing Security PIN'), findsOneWidget);
+      expect(find.text('Enter the 6-digit PIN displayed on Windows PC:'), findsOneWidget);
+      expect(find.text('Confirm PIN'), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
+
+      // Dismiss dialog via Cancel
+      await tester.tap(find.text('Cancel'));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.text('Pairing Security PIN'), findsNothing);
     });
   });
 }

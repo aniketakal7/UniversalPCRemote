@@ -19,6 +19,13 @@ public class NativeInputSimulator
     [DllImport("user32.dll")]
     private static extern bool SetCursorPos(int x, int y);
 
+
+    [DllImport("user32.dll")]
+    private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, UIntPtr dwExtraInfo);
+
+    [DllImport("user32.dll")]
+    private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+
     [StructLayout(LayoutKind.Sequential)]
     private struct POINT
     {
@@ -91,37 +98,68 @@ public class NativeInputSimulator
 
     public (int X, int Y) GetCursorPosition()
     {
-        if (GetCursorPos(out var pt))
+        try
         {
-            return (pt.X, pt.Y);
+            var p = System.Windows.Forms.Cursor.Position;
+            return (p.X, p.Y);
         }
-        return (0, 0);
+        catch
+        {
+            if (GetCursorPos(out var pt)) return (pt.X, pt.Y);
+            return (0, 0);
+        }
     }
+
+    // Accumulate fractional remainders so small deltas aren't lost to rounding
+    private float _accumulatedX = 0f;
+    private float _accumulatedY = 0f;
+
+    // Pointer acceleration parameters (mimics real touchpad behavior)
+    private const float AccelerationThreshold = 5.0f;  // Keep slow movements precise
+    private const float AccelerationGain = 0.06f;      // Gentle acceleration for longer swipes
+    private const float MaxAccelerationMultiplier = 2.25f;
 
     public void MoveMouseRelative(float dx, float dy, float sensitivity = 1.0f)
     {
-        int moveX = (int)Math.Round(dx * sensitivity);
-        int moveY = (int)Math.Round(dy * sensitivity);
+        // Apply base sensitivity
+        float scaledDx = dx * sensitivity;
+        float scaledDy = dy * sensitivity;
+
+        // Calculate velocity (magnitude of movement vector)
+        float velocity = MathF.Sqrt(scaledDx * scaledDx + scaledDy * scaledDy);
+
+        // Apply pointer acceleration curve:
+        //   - Below threshold: multiplier stays close to 1.0 (precise control)
+        //   - Above threshold: multiplier grows with speed (fast swipe = big jump)
+        float accelMultiplier = 1.0f;
+        if (velocity > AccelerationThreshold)
+        {
+            float excess = velocity - AccelerationThreshold;
+            accelMultiplier = 1.0f + AccelerationGain * excess;
+            accelMultiplier = MathF.Min(accelMultiplier, MaxAccelerationMultiplier);
+        }
+
+        _accumulatedX += scaledDx * accelMultiplier;
+        _accumulatedY += scaledDy * accelMultiplier;
+
+        int moveX = (int)_accumulatedX;
+        int moveY = (int)_accumulatedY;
 
         if (moveX == 0 && moveY == 0) return;
 
-        var input = new INPUT
-        {
-            type = INPUT_MOUSE,
-            u = new InputUnion
-            {
-                mi = new MOUSEINPUT
-                {
-                    dx = moveX,
-                    dy = moveY,
-                    dwFlags = MOUSEEVENTF_MOVE,
-                    time = 0,
-                    dwExtraInfo = IntPtr.Zero
-                }
-            }
-        };
+        // Subtract only the integer part we're about to apply, keeping the fraction
+        _accumulatedX -= moveX;
+        _accumulatedY -= moveY;
 
-        SendInput(1, new[] { input }, Marshal.SizeOf<INPUT>());
+        // Use direct Win32 calls — avoids WinForms COM marshaling overhead (~0.5ms)
+        if (GetCursorPos(out var pt))
+        {
+            SetCursorPos(pt.X + moveX, pt.Y + moveY);
+        }
+        else
+        {
+            mouse_event(MOUSEEVENTF_MOVE, moveX, moveY, 0, UIntPtr.Zero);
+        }
     }
 
     public void SendMouseButton(string button, bool down)
@@ -134,23 +172,10 @@ public class NativeInputSimulator
             _ => 0
         };
 
-        if (flag == 0) return;
-
-        var input = new INPUT
+        if (flag != 0)
         {
-            type = INPUT_MOUSE,
-            u = new InputUnion
-            {
-                mi = new MOUSEINPUT
-                {
-                    dwFlags = flag,
-                    time = 0,
-                    dwExtraInfo = IntPtr.Zero
-                }
-            }
-        };
-
-        SendInput(1, new[] { input }, Marshal.SizeOf<INPUT>());
+            mouse_event(flag, 0, 0, 0, UIntPtr.Zero);
+        }
     }
 
     public void MouseClick(string button, int clicks = 1)
@@ -158,62 +183,30 @@ public class NativeInputSimulator
         for (int i = 0; i < clicks; i++)
         {
             SendMouseButton(button, true);
-            Thread.Sleep(10);
+            // Micro-delay instead of Thread.Sleep(10) — ensures the OS registers
+            // the down event before up, without blocking the thread for 10ms.
+            Thread.SpinWait(5000);
             SendMouseButton(button, false);
             if (i < clicks - 1)
             {
-                Thread.Sleep(50);
+                // Brief inter-click gap for double-click registration
+                Thread.SpinWait(15000);
             }
         }
     }
 
     public void Scroll(float dx, float dy)
     {
-        var inputs = new List<INPUT>();
-
         if (Math.Abs(dy) > 0.01f)
         {
-            // Vertical scroll: 120 per notch standard Win32
             int amount = (int)Math.Round(dy * 120);
-            inputs.Add(new INPUT
-            {
-                type = INPUT_MOUSE,
-                u = new InputUnion
-                {
-                    mi = new MOUSEINPUT
-                    {
-                        dwFlags = MOUSEEVENTF_WHEEL,
-                        mouseData = (uint)amount,
-                        time = 0,
-                        dwExtraInfo = IntPtr.Zero
-                    }
-                }
-            });
+            mouse_event(MOUSEEVENTF_WHEEL, 0, 0, (uint)amount, UIntPtr.Zero);
         }
 
         if (Math.Abs(dx) > 0.01f)
         {
-            // Horizontal scroll
             int amount = (int)Math.Round(dx * 120);
-            inputs.Add(new INPUT
-            {
-                type = INPUT_MOUSE,
-                u = new InputUnion
-                {
-                    mi = new MOUSEINPUT
-                    {
-                        dwFlags = MOUSEEVENTF_HWHEEL,
-                        mouseData = (uint)amount,
-                        time = 0,
-                        dwExtraInfo = IntPtr.Zero
-                    }
-                }
-            });
-        }
-
-        if (inputs.Count > 0)
-        {
-            SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf<INPUT>());
+            mouse_event(MOUSEEVENTF_HWHEEL, 0, 0, (uint)amount, UIntPtr.Zero);
         }
     }
 
@@ -270,29 +263,12 @@ public class NativeInputSimulator
         uint flags = 0;
         if (!down) flags |= KEYEVENTF_KEYUP;
 
-        // Certain keys require EXTENDEDKEY flag
         if (vk is 0x21 or 0x22 or 0x23 or 0x24 or 0x25 or 0x26 or 0x27 or 0x28 or 0x2D or 0x2E or 0x5B or 0x5C)
         {
             flags |= KEYEVENTF_EXTENDEDKEY;
         }
 
-        var input = new INPUT
-        {
-            type = INPUT_KEYBOARD,
-            u = new InputUnion
-            {
-                ki = new KEYBDINPUT
-                {
-                    wVk = vk,
-                    wScan = 0,
-                    dwFlags = flags,
-                    time = 0,
-                    dwExtraInfo = IntPtr.Zero
-                }
-            }
-        };
-
-        SendInput(1, new[] { input }, Marshal.SizeOf<INPUT>());
+        keybd_event((byte)vk, 0, flags, UIntPtr.Zero);
     }
 
     public void SendKeyCombination(IEnumerable<string> modifiers, string key)
@@ -306,13 +282,14 @@ public class NativeInputSimulator
             SendVirtualKey(m, true);
         }
 
-        Thread.Sleep(5);
+        // Micro-delay instead of Thread.Sleep(5) — sub-ms
+        Thread.SpinWait(2000);
 
         // Press main key down and up
         if (mainVk != 0)
         {
             SendVirtualKey(mainVk, true);
-            Thread.Sleep(10);
+            Thread.SpinWait(5000);
             SendVirtualKey(mainVk, false);
         }
         else if (key.Length == 1)
@@ -320,7 +297,8 @@ public class NativeInputSimulator
             SendText(key);
         }
 
-        Thread.Sleep(5);
+        // Micro-delay before releasing modifiers
+        Thread.SpinWait(2000);
 
         // Release modifiers in reverse order
         for (int i = modVks.Count - 1; i >= 0; i--)
@@ -366,6 +344,16 @@ public class NativeInputSimulator
             "DOWN" or "ARROWDOWN" => 0x28,
             "LEFT" or "ARROWLEFT" => 0x25,
             "RIGHT" or "ARROWRIGHT" => 0x27,
+            "BACKTICK" or "`" or "~" => 0xC0,
+            "BACKSLASH" or "\\" => 0xDC,
+            "SLASH" or "/" => 0xBF,
+            "SEMICOLON" or ";" => 0xBA,
+            "PERIOD" or "." => 0xBE,
+            "COMMA" or "," => 0xBC,
+            "MINUS" or "-" => 0xBD,
+            "PLUS" or "=" => 0xBB,
+            "BRACKET_LEFT" or "[" => 0xDB,
+            "BRACKET_RIGHT" or "]" => 0xDD,
             "F1" => 0x70,
             "F2" => 0x71,
             "F3" => 0x72,

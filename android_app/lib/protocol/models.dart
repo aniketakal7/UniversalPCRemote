@@ -26,6 +26,8 @@ class CommandTypes {
   static const String mediaNext = 'media.next';
   static const String mediaPrevious = 'media.previous';
   static const String mediaStop = 'media.stop';
+  static const String mediaSeekBackward = 'media.seek_backward';
+  static const String mediaSeekForward = 'media.seek_forward';
   static const String mediaVolumeUp = 'media.volume_up';
   static const String mediaVolumeDown = 'media.volume_down';
   static const String mediaVolumeMute = 'media.volume_mute';
@@ -80,6 +82,7 @@ class CommandEnvelope {
 
   String encode() => jsonEncode(toJson());
 
+  /// Cryptographically secure UUID v4 — used for commands that expect a response.
   static String generateId() {
     final random = Random.secure();
     final values = List<int>.generate(16, (i) => random.nextInt(256));
@@ -88,6 +91,12 @@ class CommandEnvelope {
     final hex = values.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
     return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20, 32)}';
   }
+
+  /// Fast monotonic counter-based ID — used for fire-and-forget input packets
+  /// (mouse.move, mouse.scroll, media keys) where crypto-strength uniqueness
+  /// is unnecessary. ~100x cheaper than generateId() on the hot path.
+  static int _fastCounter = 0;
+  static String generateFastId() => 'f${++_fastCounter}';
 }
 
 class ResponseEnvelope {

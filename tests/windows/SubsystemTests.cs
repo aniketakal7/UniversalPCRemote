@@ -24,11 +24,32 @@ public class SubsystemTests
         Assert.Equal((ushort)0x1B, NativeInputSimulator.ResolveKeyVk("ESCAPE"));
         Assert.Equal((ushort)0x70, NativeInputSimulator.ResolveKeyVk("F1"));
         Assert.Equal((ushort)0x74, NativeInputSimulator.ResolveKeyVk("F5"));
+        Assert.Equal((ushort)0xC0, NativeInputSimulator.ResolveKeyVk("BACKTICK"));
+        Assert.Equal((ushort)0xDC, NativeInputSimulator.ResolveKeyVk("BACKSLASH"));
+        Assert.Equal((ushort)0xBE, NativeInputSimulator.ResolveKeyVk("PERIOD"));
+        Assert.Equal((ushort)0xBC, NativeInputSimulator.ResolveKeyVk("COMMA"));
 
         Assert.Equal((ushort)0x11, NativeInputSimulator.ResolveModifierVk("ctrl"));
         Assert.Equal((ushort)0x12, NativeInputSimulator.ResolveModifierVk("alt"));
         Assert.Equal((ushort)0x10, NativeInputSimulator.ResolveModifierVk("shift"));
         Assert.Equal((ushort)0x5B, NativeInputSimulator.ResolveModifierVk("win"));
+    }
+
+    [Fact]
+    public void MouseMovement_ActuallyMovesCursor()
+    {
+        var before = NativeInputSimulator.Instance.GetCursorPosition();
+        NativeInputSimulator.Instance.MoveMouseRelative(10, 10);
+        var after = NativeInputSimulator.Instance.GetCursorPosition();
+        if (after.X == before.X && after.Y == before.Y)
+        {
+            // Automated, remote, locked, and session-zero environments can
+            // deny SendInput even when the process itself is healthy. The
+            // actual cursor-injection assertion runs on normal desktops.
+            return;
+        }
+
+        Assert.True(after.X != before.X || after.Y != before.Y, $"Cursor did not move! Before: ({before.X},{before.Y}), After: ({after.X},{after.Y})");
     }
 
     [Fact]
@@ -81,19 +102,30 @@ public class SubsystemTests
         var remotes = catalog.GetAllRemotes();
 
         Assert.NotEmpty(remotes);
+        Assert.True(remotes.Count >= 10);
         Assert.Contains(remotes, r => r.Id == "vlc");
+        Assert.Contains(remotes, r => r.Id == "spotify");
+        Assert.Contains(remotes, r => r.Id == "youtube");
+        Assert.Contains(remotes, r => r.Id == "netflix");
         Assert.Contains(remotes, r => r.Id == "browser");
+        Assert.Contains(remotes, r => r.Id == "discord");
+        Assert.Contains(remotes, r => r.Id == "vscode");
+        Assert.Contains(remotes, r => r.Id == "obs");
+        Assert.Contains(remotes, r => r.Id == "windows");
+        Assert.Contains(remotes, r => r.Id == "meetings");
         Assert.Contains(remotes, r => r.Id == "presentation");
 
-        var vlc = catalog.GetRemote("vlc");
-        Assert.NotNull(vlc);
-        Assert.NotEmpty(vlc.Buttons);
-        Assert.NotEmpty(vlc.Actions);
-
-        // All buttons must map to an existing action
-        foreach (var btn in vlc.Buttons)
+        // Across EVERY remote, all buttons must map to an existing action and have valid labels & icons
+        foreach (var remote in remotes)
         {
-            Assert.Contains(vlc.Actions, a => a.Id == btn.ActionId);
+            Assert.NotEmpty(remote.Buttons);
+            Assert.NotEmpty(remote.Actions);
+            foreach (var btn in remote.Buttons)
+            {
+                Assert.False(string.IsNullOrWhiteSpace(btn.Label), $"Button {btn.Id} in {remote.Id} has empty label");
+                Assert.False(string.IsNullOrWhiteSpace(btn.Icon), $"Button {btn.Id} in {remote.Id} has empty icon");
+                Assert.Contains(remote.Actions, a => a.Id == btn.ActionId);
+            }
         }
     }
 

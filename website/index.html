@@ -964,9 +964,11 @@
         <li><a href="#comparison">Compare</a></li>
         <li><a href="#downloads">Downloads</a></li>
         <li><a href="#faq">FAQ</a></li>
+        <li><a href="https://github.com/aniketakal7/UniversalPCRemote" target="_blank" rel="noopener">GitHub</a></li>
       </ul>
 
       <div class="nav-actions">
+        <a href="https://github.com/aniketakal7/UniversalPCRemote" target="_blank" rel="noopener" class="theme-toggle-btn" title="View GitHub Repository" style="text-decoration:none;">⭐</a>
         <button id="themeToggle" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">🌙</button>
         <a href="#downloads" class="btn-nav">Get App</a>
       </div>
@@ -992,7 +994,7 @@
           </p>
 
           <div class="hero-cta-group">
-            <a href="downloads/UniversalPCRemote.apk" download class="btn-hero btn-hero-primary" id="primaryDownloadBtn">
+            <a href="https://github.com/aniketakal7/UniversalPCRemote/releases/download/v1.0.0/UniversalPCRemote.apk" download class="btn-hero btn-hero-primary" id="primaryDownloadBtn">
               <span style="font-size: 1.6rem;">📱</span>
               <div class="btn-meta">
                 <span class="btn-title">Download Android APK</span>
@@ -1000,7 +1002,7 @@
               </div>
             </a>
 
-            <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download class="btn-hero btn-hero-secondary">
+            <a href="https://github.com/aniketakal7/UniversalPCRemote/releases/download/v1.0.0/UniversalPCRemote-v1.0.0-windows-x64.zip" download class="btn-hero btn-hero-secondary">
               <span style="font-size: 1.6rem;">💻</span>
               <div class="btn-meta">
                 <span class="btn-title">Download Windows Companion</span>
@@ -1087,7 +1089,7 @@
             Point your mobile camera at this QR code. Your phone will immediately download the Android APK file over your local network — no USB cable or play store login required.
           </p>
           <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <a href="downloads/UniversalPCRemote.apk" download class="btn-nav">Download APK Directly</a>
+            <a href="https://github.com/aniketakal7/UniversalPCRemote/releases/download/v1.0.0/UniversalPCRemote.apk" download class="btn-nav">Download APK Directly</a>
             <span class="lan-url-tag" id="mobileApkUrl">UniversalPCRemote.apk</span>
           </div>
         </div>
@@ -1314,7 +1316,7 @@
               <li>✔️ SHA-256 Verified</li>
             </ul>
           </div>
-          <a href="downloads/UniversalPCRemote.apk" download class="btn-dl-large">
+          <a href="https://github.com/aniketakal7/UniversalPCRemote/releases/download/v1.0.0/UniversalPCRemote.apk" download class="btn-dl-large">
             <span>⬇️</span> Download APK
           </a>
         </div>
@@ -1339,7 +1341,7 @@
               <li>✔️ UDP Auto-Discovery Beacon</li>
             </ul>
           </div>
-          <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download class="btn-dl-large">
+          <a href="https://github.com/aniketakal7/UniversalPCRemote/releases/download/v1.0.0/UniversalPCRemote-v1.0.0-windows-x64.zip" download class="btn-dl-large">
             <span>⬇️</span> Download Windows ZIP
           </a>
         </div>
@@ -1442,11 +1444,12 @@
     }
 
     // QR Code URL Calculation
-    const currentOrigin = window.location.origin && window.location.origin !== 'null'
-      ? window.location.origin
-      : 'http://' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-    const currentPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-    const fullApkUrl = currentOrigin + currentPath + 'downloads/UniversalPCRemote.apk';
+    // If running on localhost, allow local download testing; otherwise use high-speed GitHub Release CDN
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const GITHUB_APK_RELEASE = 'https://github.com/aniketakal7/UniversalPCRemote/releases/download/v1.0.0/UniversalPCRemote.apk';
+    const fullApkUrl = isLocalhost 
+      ? (window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + 'downloads/UniversalPCRemote.apk')
+      : GITHUB_APK_RELEASE;
 
     const qrImg = document.getElementById('qrCodeImg');
     const mobileUrlSpan = document.getElementById('mobileApkUrl');

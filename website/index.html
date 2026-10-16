@@ -108,6 +108,7 @@
       left: 50%;
       transform: translateX(-50%);
       width: 700px;
+      max-width: 100vw;
       height: 400px;
       background: radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
       pointer-events: none;
@@ -925,6 +926,119 @@
       color: var(--primary-light);
     }
 
+    /* Feature Tags */
+    .tag {
+      display: inline-block;
+      padding: 5px 12px;
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary-light);
+    }
+
+    /* Mobile Hamburger Menu */
+    .mobile-menu-btn {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      width: 42px;
+      height: 42px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .mobile-nav-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9998;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .mobile-nav-overlay.active {
+      opacity: 1;
+    }
+
+    .mobile-nav-drawer {
+      display: none;
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 280px;
+      max-width: 85vw;
+      height: 100%;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      z-index: 9999;
+      flex-direction: column;
+      padding: 24px;
+      transition: right 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .mobile-nav-drawer.active {
+      right: 0;
+    }
+
+    .mobile-nav-close {
+      align-self: flex-end;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      margin-bottom: 24px;
+    }
+
+    .mobile-nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .mobile-nav-links a {
+      display: block;
+      padding: 14px 16px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.05rem;
+      border-radius: 12px;
+      transition: background 0.15s ease;
+    }
+
+    .mobile-nav-links a:hover,
+    .mobile-nav-links a:focus {
+      background: var(--card-elevated);
+    }
+
+    .mobile-nav-cta {
+      margin-top: 24px;
+    }
+
+    .mobile-nav-cta .btn-nav {
+      display: block;
+      text-align: center;
+      width: 100%;
+      padding: 14px 22px;
+    }
+
     /* Footer */
     footer {
       border-top: 1px solid var(--border);
@@ -953,7 +1067,9 @@
     }
 
     /* Comprehensive Multi-Device Responsive Design */
-    @media (max-width: 992px) {
+
+    /* Tablet & small desktop (≤1023px) */
+    @media (max-width: 1023px) {
       .hero-grid {
         grid-template-columns: 1fr;
         text-align: center;
@@ -984,12 +1100,33 @@
       .download-cards-grid {
         grid-template-columns: 1fr;
       }
+      /* Show hamburger, hide desktop nav */
       .nav-links {
         display: none;
       }
+      .mobile-menu-btn {
+        display: flex;
+      }
+      .mobile-nav-overlay,
+      .mobile-nav-drawer {
+        display: block;
+      }
+      .mobile-nav-drawer {
+        display: flex;
+      }
+      /* Constrain spotlight to viewport */
+      .spotlight {
+        width: 100%;
+        max-width: 100vw;
+      }
     }
 
-    @media (max-width: 768px) {
+    /* Mobile (≤767px) */
+    @media (max-width: 767px) {
+      /* Hide "Get App" from nav bar (available in drawer) */
+      .nav-actions .btn-nav {
+        display: none;
+      }
       .hero {
         padding: 36px 0 28px;
       }
@@ -1011,20 +1148,20 @@
       .hero-cta-group {
         flex-direction: column;
         align-items: stretch;
-        max-width: 380px;
+        max-width: 100%;
         margin: 0 auto 32px;
         gap: 12px;
       }
       .btn-hero {
         width: 100%;
         justify-content: center;
-        padding: 14px 18px;
+        padding: 14px 16px;
       }
       .hero-stats {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
-        max-width: 380px;
+        max-width: 100%;
         margin: 0 auto;
         padding-top: 20px;
       }
@@ -1079,6 +1216,7 @@
         font-size: 0.75rem;
         width: 100%;
         text-align: center;
+        overflow-wrap: anywhere;
       }
       .qr-card-box {
         max-width: 260px;
@@ -1130,15 +1268,31 @@
         padding: 20px 14px;
       }
 
-      /* Mobile Table Enhancements */
+      /* Mobile Table: allow horizontal scroll, prevent clipping */
       .comp-table-card {
         border-radius: 18px;
         border: 1px solid var(--border);
+        margin-left: -16px;
+        margin-right: -16px;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
       }
       .comp-table th, .comp-table td {
         padding: 12px 14px;
-        font-size: 0.82rem;
+        font-size: 0.78rem;
         white-space: nowrap;
+      }
+      .comp-table th:first-child,
+      .comp-table td:first-child {
+        position: sticky;
+        left: 0;
+        background: var(--surface);
+        z-index: 2;
+        min-width: 120px;
+      }
+      .comp-table th:first-child {
+        background: var(--card);
       }
 
       /* Download Packages on Mobile */
@@ -1186,6 +1340,9 @@
         flex-wrap: wrap;
         gap: 16px;
       }
+      footer {
+        padding: 36px 0;
+      }
       .nav {
         height: 64px;
       }
@@ -1200,11 +1357,19 @@
       .brand-badge {
         display: none;
       }
+      /* Section padding adjustments */
+      .modes-section {
+        padding: 30px 0 50px;
+      }
+      .comparison-section {
+        padding: 30px 0 50px;
+      }
     }
 
-    @media (max-width: 420px) {
+    /* Small mobile (≤479px) */
+    @media (max-width: 479px) {
       .hero-content h1 {
-        font-size: 1.9rem;
+        font-size: clamp(1.7rem, 8vw, 2.1rem);
       }
       .phone-mockup {
         max-width: 270px;
@@ -1228,6 +1393,118 @@
       }
       .btn-sub {
         font-size: 0.72rem;
+      }
+      .dl-header {
+        gap: 12px;
+      }
+      .dl-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        font-size: 1.4rem;
+      }
+      .dl-name {
+        font-size: 1.15rem;
+      }
+      .qr-banner-title {
+        font-size: 1.35rem;
+      }
+      .section-title {
+        font-size: 1.5rem;
+      }
+      .hero-cta-group {
+        max-width: 100%;
+      }
+      .btn-hero {
+        padding: 12px 14px;
+        gap: 10px;
+      }
+      .tag {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+      }
+    }
+
+    /* Extra-small mobile (≤359px) */
+    @media (max-width: 359px) {
+      .hero-content h1 {
+        font-size: 1.6rem;
+      }
+      .hero-content p {
+        font-size: 0.92rem;
+      }
+      .stat-val {
+        font-size: 1.1rem;
+      }
+      .phone-mockup {
+        max-width: 240px;
+        height: 450px;
+      }
+      .qr-banner-section {
+        padding: 20px 14px;
+      }
+      .qr-banner-title {
+        font-size: 1.2rem;
+      }
+      .section-title {
+        font-size: 1.35rem;
+      }
+      .faq-question {
+        padding: 14px 14px;
+        font-size: 0.88rem;
+      }
+      .faq-answer {
+        padding: 0 14px 14px;
+        font-size: 0.82rem;
+      }
+      .mode-display-card {
+        padding: 18px 12px;
+      }
+      #modeTitle {
+        font-size: 1.25rem !important;
+      }
+      #modeDesc {
+        font-size: 0.88rem !important;
+      }
+      .btn-hero {
+        padding: 11px 12px;
+        gap: 8px;
+        border-radius: 12px;
+      }
+      .btn-title {
+        font-size: 0.88rem;
+      }
+      .btn-sub {
+        font-size: 0.68rem;
+      }
+      .nav {
+        height: 58px;
+      }
+      .brand {
+        font-size: 0.95rem;
+        gap: 8px;
+      }
+      .brand-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+      }
+      .mobile-menu-btn,
+      .theme-toggle-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        font-size: 1.1rem;
+      }
+    }
+
+    /* Large desktop enhancements (≥1600px) */
+    @media (min-width: 1600px) {
+      .container {
+        max-width: 1400px;
+      }
+      .hero-content h1 {
+        font-size: 4.2rem;
       }
     }
   </style>
@@ -1257,9 +1534,27 @@
       <div class="nav-actions">
         <button id="themeToggle" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">🌙</button>
         <a href="#downloads" class="btn-nav">Get App</a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open Menu">☰</button>
       </div>
     </div>
   </header>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-overlay" id="mobileOverlay"></div>
+  <nav class="mobile-nav-drawer" id="mobileDrawer" aria-label="Mobile Navigation">
+    <button class="mobile-nav-close" id="mobileMenuClose" aria-label="Close Menu">✕</button>
+    <ul class="mobile-nav-links">
+      <li><a href="#demo" class="mobile-nav-link">Live Demo</a></li>
+      <li><a href="#features" class="mobile-nav-link">Features</a></li>
+      <li><a href="#gestures" class="mobile-nav-link">Gestures</a></li>
+      <li><a href="#comparison" class="mobile-nav-link">Compare</a></li>
+      <li><a href="#downloads" class="mobile-nav-link">Downloads</a></li>
+      <li><a href="#faq" class="mobile-nav-link">FAQ</a></li>
+    </ul>
+    <div class="mobile-nav-cta">
+      <a href="#downloads" class="btn-nav mobile-nav-link">Get App</a>
+    </div>
+  </nav>
 
   <main class="container">
     <!-- Hero Section -->
@@ -1861,6 +2156,42 @@
       const parent = el.parentElement;
       parent.classList.toggle('open');
     }
+
+    // Mobile Navigation Drawer
+    (function() {
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      const closeBtn = document.getElementById('mobileMenuClose');
+      const drawer = document.getElementById('mobileDrawer');
+      const overlay = document.getElementById('mobileOverlay');
+      const navLinks = document.querySelectorAll('.mobile-nav-link');
+
+      function openMenu() {
+        drawer.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        closeBtn.focus();
+      }
+
+      function closeMenu() {
+        drawer.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      if (menuBtn) menuBtn.addEventListener('click', openMenu);
+      if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+      if (overlay) overlay.addEventListener('click', closeMenu);
+
+      navLinks.forEach(function(link) {
+        link.addEventListener('click', closeMenu);
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && drawer.classList.contains('active')) {
+          closeMenu();
+        }
+      });
+    })();
   </script>
 </body>
 </html>

@@ -348,11 +348,15 @@
       backdrop-filter: blur(4px);
       z-index: 9998;
       opacity: 0;
-      transition: opacity 0.25s ease;
+      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
     }
 
     .mobile-nav-overlay.active {
       opacity: 1;
+      pointer-events: auto;
+      visibility: visible;
     }
 
     .mobile-nav-drawer {

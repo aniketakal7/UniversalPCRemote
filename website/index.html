@@ -106,6 +106,11 @@
             </a>
           </div>
 
+          <a href="#qrCard" class="hero-qr-hint" aria-label="Jump to Direct Android APK Download QR Code">
+            <span>📷</span>
+            <span>Scan QR to download APK directly to phone ➔</span>
+          </a>
+
           <div class="trust">
             <span><b>◈</b> 8ms Motion Interval</span>
             <span><b>ϟ</b> 0% Cloud Dependency</span>
@@ -477,6 +482,25 @@
               <span class="tag-badge success" style="background: rgba(99, 233, 181, 0.2);">No Registration</span>
               <span class="tag-badge success" style="background: rgba(99, 233, 181, 0.2);">Zero Cloud Relays</span>
             </div>
+
+            <!-- Direct Android APK Download QR Code Card -->
+            <div class="qr-install-card" id="qrCard">
+              <div class="qr-code-wrapper">
+                <img id="apkQrCode" src="assets/apk_qr.png" alt="Direct Android APK Download QR Code" width="124" height="124">
+                <div class="qr-laser" aria-hidden="true"></div>
+              </div>
+              <div class="qr-info">
+                <div class="qr-header">
+                  <span class="qr-badge">● Direct Android APK Scan</span>
+                  <button class="qr-copy-btn" id="copyApkLinkBtn" type="button" title="Copy Direct APK Download Link">
+                    <span>📋 Copy Link</span>
+                  </button>
+                </div>
+                <strong>Scan with Phone Camera</strong>
+                <p>Point any camera or QR scanner to download <code>UniversalPCRemote.apk</code> directly to your Android device.</p>
+                <div class="qr-direct-link" id="apkUrlDisplay">https://universalpcremote.pages.dev/downloads/UniversalPCRemote.apk</div>
+              </div>
+            </div>
           </div>
 
           <div class="downloads">
@@ -638,6 +662,9 @@
 
   <!-- Toast Container -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Floating Back to Top Button -->
+  <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top of page" title="Back to top">↑</button>
 
   <!-- Separated Modular Interactive Engine -->
   <script src="app.js" defer></script>

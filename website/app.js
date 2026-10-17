@@ -284,4 +284,80 @@
     }
   }
 
+  // 9. Direct Android APK QR Code Generator & Copy Link
+  const qrImg = $('#apkQrCode');
+  const apkUrlDisplay = $('#apkUrlDisplay');
+  const copyBtn = $('#copyApkLinkBtn');
+
+  const currentOrigin = window.location.origin;
+  const currentPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+  const directApkUrl = (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'https://universalpcremote.pages.dev/downloads/UniversalPCRemote.apk'
+    : (currentOrigin + currentPath + 'downloads/UniversalPCRemote.apk');
+
+  if (qrImg) {
+    if (directApkUrl !== 'https://universalpcremote.pages.dev/downloads/UniversalPCRemote.apk') {
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=6&data=${encodeURIComponent(directApkUrl)}`;
+    } else if (!qrImg.getAttribute('src')) {
+      qrImg.src = 'assets/apk_qr.png';
+    }
+  }
+  if (apkUrlDisplay) {
+    apkUrlDisplay.textContent = directApkUrl;
+  }
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(directApkUrl).then(() => {
+          toast('Direct APK link copied to clipboard!');
+        }).catch(() => {
+          toast('Link: ' + directApkUrl);
+        });
+      } else {
+        toast('Link: ' + directApkUrl);
+      }
+    });
+  }
+
+  // 10. Floating Back-to-Top Button
+  const backToTopBtn = $('#backToTopBtn');
+  if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        backToTopBtn.classList.add('visible');
+      } else {
+        backToTopBtn.classList.remove('visible');
+      }
+    }, { passive: true });
+
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // 11. Navigation Scrollspy
+  const sections = $$('section[id]');
+  const navLinksList = $$('#navLinks a[href^="#"]');
+
+  function updateScrollspy() {
+    const scrollPos = window.scrollY + 120;
+    sections.forEach((sec) => {
+      const top = sec.offsetTop;
+      const height = sec.offsetHeight;
+      const id = sec.getAttribute('id');
+      if (scrollPos >= top && scrollPos < top + height) {
+        navLinksList.forEach((a) => {
+          if (a.getAttribute('href') === `#${id}`) {
+            a.classList.add('active');
+          } else {
+            a.classList.remove('active');
+          }
+        });
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateScrollspy, { passive: true });
+  updateScrollspy();
+
 })();

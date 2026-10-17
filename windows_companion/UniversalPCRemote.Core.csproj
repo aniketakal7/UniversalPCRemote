@@ -6,6 +6,11 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Product>Universal PC Remote™ by Aniket Akal</Product>
+    <Company>Aniket Akal</Company>
+    <Authors>Aniket Akal</Authors>
+    <Copyright>© 2026 Aniket Akal. All rights reserved.</Copyright>
+    <Trademark>Universal PC Remote™ by Aniket Akal</Trademark>
   </PropertyGroup>
 
   <ItemGroup>

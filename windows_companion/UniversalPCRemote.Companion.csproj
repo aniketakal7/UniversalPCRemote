@@ -11,8 +11,12 @@
     <AssemblyName>UniversalPCRemote</AssemblyName>
     <Version>1.0.0</Version>
     <FileVersion>1.0.0.0</FileVersion>
-    <Product>Universal PC Remote Companion</Product>
-    <Company>Universal PC Remote</Company>
+    <Product>Universal PC Remote™ by Aniket Akal</Product>
+    <Company>Aniket Akal</Company>
+    <Authors>Aniket Akal</Authors>
+    <Copyright>© 2026 Aniket Akal. All rights reserved.</Copyright>
+    <Trademark>Universal PC Remote™ by Aniket Akal</Trademark>
+    <Description>Universal PC Remote™ by Aniket Akal - Companion Server</Description>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>

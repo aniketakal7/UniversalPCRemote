@@ -189,7 +189,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> with SingleTickerProv
             const SizedBox(height: 12),
             _buildHelpStep('2', 'Connect your Windows PC to this phone\'s hotspot Wi-Fi network.'),
             const SizedBox(height: 12),
-            _buildHelpStep('3', 'Open Universal PC Remote Companion on PC. It will automatically detect the hotspot and link with low latency!'),
+            _buildHelpStep('3', 'Open Universal PC Remote™ Companion on PC. It will automatically detect the hotspot and link with low latency!'),
           ],
         ),
         actions: [
@@ -482,7 +482,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> with SingleTickerProv
                         Text(
                           widget.stateManager.isHotspotActive
                               ? 'PC connected to this phone\'s hotspot? Tap below to scan directly:'
-                              : 'Make sure Universal PC Remote Companion is running on your PC',
+                              : 'Make sure Universal PC Remote™ Companion is running on your PC',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 12,

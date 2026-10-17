@@ -1,4 +1,5 @@
-# Setup Guide
+# Universal PC Remote™ Setup Guide
+*by Aniket Akal*
 
 ## Requirements
 - **Windows PC**: Windows 10/11 x64, .NET 8 Runtime / SDK installed.
@@ -27,3 +28,10 @@
 2. Launch the app on your phone.
 3. Tap **Discover PCs** to automatically detect your computer over Wi-Fi, or enter your PC's local IP address (shown on the companion dashboard) manually.
 4. Follow the pairing instructions (enter the 6-digit code shown on your PC screen).
+
+---
+
+## Trademark & Attribution
+Universal PC Remote™ is a trademark of Aniket Akal.  
+© 2026 Aniket Akal. All rights reserved.
+

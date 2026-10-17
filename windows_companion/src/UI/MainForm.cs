@@ -43,7 +43,7 @@ public class MainForm : Form
 
     public MainForm()
     {
-        Text = "Universal PC Remote — Companion Server";
+        Text = "Universal PC Remote™ by Aniket Akal — Companion Server";
         Width = 840;
         Height = 620;
         StartPosition = FormStartPosition.CenterScreen;
@@ -139,7 +139,7 @@ public class MainForm : Form
 
         var title = new Label
         {
-            Text = "Universal PC Remote",
+            Text = "Universal PC Remote™",
             ForeColor = Color.White,
             Font = new Font("Segoe UI", 14f, FontStyle.Bold),
             AutoSize = true,
@@ -148,7 +148,7 @@ public class MainForm : Form
 
         var subtitle = new Label
         {
-            Text = $"PC: {Environment.MachineName} • Windows Companion Service",
+            Text = $"by Aniket Akal • PC: {Environment.MachineName} • Windows Companion Service",
             ForeColor = Color.FromArgb(170, 185, 205),
             Font = new Font("Segoe UI", 9f),
             AutoSize = true,
@@ -220,7 +220,7 @@ public class MainForm : Form
             if (!string.IsNullOrEmpty(firstPin))
             {
                 System.Windows.Forms.Clipboard.SetText(firstPin);
-                MessageBox.Show($"Pairing PIN {firstPin} copied to clipboard!", "Universal PC Remote", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Pairing PIN {firstPin} copied to clipboard!", "Universal PC Remote™ by Aniket Akal", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         };
 
@@ -278,7 +278,7 @@ public class MainForm : Form
         // Tray Icon
         _trayIcon = new NotifyIcon
         {
-            Text = "Universal PC Remote Companion",
+            Text = "Universal PC Remote™ by Aniket Akal",
             Icon = appIcon,
             Visible = true
         };
@@ -290,7 +290,7 @@ public class MainForm : Form
         };
 
         var trayMenu = new ContextMenuStrip();
-        var itemHeader = new ToolStripMenuItem("Universal PC Remote Companion") { Enabled = false };
+        var itemHeader = new ToolStripMenuItem("Universal PC Remote™ by Aniket Akal") { Enabled = false };
         trayMenu.Items.Add(itemHeader);
         trayMenu.Items.Add(new ToolStripSeparator());
         trayMenu.Items.Add("Open Companion Window", null, (_, _) =>
@@ -308,7 +308,7 @@ public class MainForm : Form
             }
             else
             {
-                MessageBox.Show("No active pairing session right now.", "Universal PC Remote", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No active pairing session right now.", "Universal PC Remote™ by Aniket Akal", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         });
         trayMenu.Items.Add("Configure Windows Firewall", null, (_, _) => ConfigureFirewall());
@@ -420,7 +420,7 @@ public class MainForm : Form
 
         _chkStartWithWindows = new CheckBox
         {
-            Text = "Start Universal PC Remote when I sign in",
+            Text = "Start Universal PC Remote™ when I sign in",
             Checked = IsStartupEnabled(),
             AutoSize = true,
             Location = new Point(25, 320),
@@ -766,7 +766,7 @@ public class MainForm : Form
             _chkStartWithWindows.Checked = !_chkStartWithWindows.Checked;
             _suppressStartupSettingUpdate = false;
             AppLogger.Instance.Error("Startup", "Failed to update automatic startup setting.", ex);
-            MessageBox.Show(ex.Message, "Universal PC Remote", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(ex.Message, "Universal PC Remote™ by Aniket Akal", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -837,7 +837,7 @@ if exist ""{exePath}"" (
         {
             e.Cancel = true;
             Hide();
-            _trayIcon.ShowBalloonTip(2000, "Universal PC Remote", "Companion server running in background.", ToolTipIcon.Info);
+            _trayIcon.ShowBalloonTip(2000, "Universal PC Remote™", "Universal PC Remote™ by Aniket Akal companion server running in background.", ToolTipIcon.Info);
         }
         else
         {

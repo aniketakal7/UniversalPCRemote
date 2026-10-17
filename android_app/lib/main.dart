@@ -70,7 +70,7 @@ class _UniversalRemoteAppState extends State<UniversalRemoteApp> with WidgetsBin
       animation: _stateManager,
       builder: (context, _) {
         return MaterialApp(
-          title: 'Universal PC Remote',
+          title: 'Universal PC Remote™ by Aniket Akal',
           debugShowCheckedModeBanner: false,
           themeMode: _themeMode,
           theme: AppTheme.getLightTheme(),
@@ -653,12 +653,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'Universal PC Remote',
+                    'Universal PC Remote™',
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20),
                   ),
                   const SizedBox(height: 2),
                   const Text(
-                    'Crafted by Aniket Akal',
+                    'by Aniket Akal',
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12.5),
                   ),
                   Text(
@@ -685,7 +685,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.info_outline_rounded, color: AppTheme.primaryLight),
-              title: const Text('About Universal PC Remote', style: TextStyle(fontWeight: FontWeight.w500)),
+              title: const Text('About Universal PC Remote™', style: TextStyle(fontWeight: FontWeight.w500)),
               onTap: () => _showAboutDialog(context),
             ),
             const SizedBox(height: 12),
@@ -770,7 +770,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildGuideStep(
                   step: '2',
                   title: 'Start Companion on PC',
-                  desc: 'Run Universal PC Remote Companion on your Windows machine. It automatically broadcasts on port 5000.',
+                  desc: 'Run Universal PC Remote™ Companion on your Windows machine. It automatically broadcasts on port 51235.',
                   isDark: isDark,
                 ),
                 const SizedBox(height: 12),
@@ -883,8 +883,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Universal PC Remote',
+              'Universal PC Remote™',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const SizedBox(height: 2),
+            const Text(
+              'by Aniket Akal',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppTheme.primaryLight),
             ),
             const SizedBox(height: 4),
             Container(
@@ -980,6 +985,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const Icon(Icons.verified_rounded, color: AppTheme.primaryLight, size: 20),
                 ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Universal PC Remote™ is a trademark of Aniket Akal.\n© 2026 Aniket Akal. All rights reserved.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10,
+                color: isDark ? AppTheme.darkTextMuted : AppTheme.lightTextMuted,
               ),
             ),
           ],

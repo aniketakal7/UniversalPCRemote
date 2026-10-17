@@ -1,7 +1,8 @@
-# Security Architecture & Rules
+# Universal PC Remote™ Security Architecture
+*by Aniket Akal*
 
 ## 1. Zero Cloud Dependency
-Universal PC Remote operates entirely inside the user's local network (LAN / Wi-Fi). No internet connection is ever required. No telemetry, third-party authentication, or remote relay servers exist.
+Universal PC Remote™ operates entirely inside the user's local network (LAN / Wi-Fi). No internet connection is ever required. No telemetry, third-party authentication, or remote relay servers exist.
 
 ## 2. No Arbitrary Remote Code Execution (RCE)
 By design, the companion server **never** exposes arbitrary command-line or shell execution endpoints.

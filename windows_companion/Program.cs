@@ -43,7 +43,7 @@ static class Program
         if (!createdNew)
         {
             // Another instance is already running; bring it to foreground
-            var hWnd = FindWindow(null, "Universal PC Remote — Companion Server");
+            var hWnd = FindWindow(null, "Universal PC Remote™ by Aniket Akal — Companion Server");
             if (hWnd != IntPtr.Zero)
             {
                 ShowWindow(hWnd, SW_RESTORE);

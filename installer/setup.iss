@@ -1,10 +1,11 @@
 ; Inno Setup Script for Universal PC Remote Companion
 ; Generates UniversalPCRemote-Setup.exe
 
-#define MyAppName "Universal PC Remote"
+#define MyAppName "Universal PC Remote™"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "Universal PC Remote"
-#define MyAppURL "https://github.com/UniversalPCRemote"
+#define MyAppPublisher "Aniket Akal"
+#define MyAppCopyright "© 2026 Aniket Akal. All rights reserved."
+#define MyAppURL "https://github.com/aniketakal7/UniversalPCRemote"
 #define MyAppExeName "UniversalPCRemote.exe"
 
 [Setup]
@@ -12,6 +13,7 @@ AppId={{9C5E487B-11E5-46D9-8F7E-971A02844DE7}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
+AppCopyright={#MyAppCopyright}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}

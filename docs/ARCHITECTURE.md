@@ -1,7 +1,8 @@
-# Universal PC Remote Architecture
+# Universal PC Remote™ Architecture
+*Designed and Engineered by Aniket Akal*
 
 ## 1. Overview
-Universal PC Remote is a secure, zero-cloud, local-network system for controlling a Windows PC from an Android device.
+Universal PC Remote™ is a secure, zero-cloud, local-network system for controlling a Windows PC from an Android device.
 
 ```
 +--------------------------+                 +--------------------------+
@@ -54,3 +55,10 @@ Universal PC Remote is a secure, zero-cloud, local-network system for controllin
   - `system`: System power controls with mandatory confirmation dialogs for dangerous actions.
   - `remotes`: Modular application-specific remotes.
   - `diagnostics`: End-to-end diagnostic ping test screen.
+
+---
+
+## Trademark & Attribution
+Universal PC Remote™ is a trademark of Aniket Akal.  
+© 2026 Aniket Akal. All rights reserved.
+

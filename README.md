@@ -1,4 +1,4 @@
-# Universal PC Remote
+# Universal PC Remote™ by Aniket Akal
 
 A production-ready, open-source, zero-cloud PC remote control system built with Flutter and .NET 8.
 
@@ -21,3 +21,10 @@ A production-ready, open-source, zero-cloud PC remote control system built with 
 
 ## Getting Started
 See [SETUP.md](file:///C:/Users/kanch/Desktop/ABC/UniversalPCRemote/docs/SETUP.md) for step-by-step setup and running instructions.
+
+---
+
+## Trademark & Copyright
+**Universal PC Remote™** is a trademark of **Aniket Akal**.  
+© 2026 Aniket Akal. All rights reserved.
+

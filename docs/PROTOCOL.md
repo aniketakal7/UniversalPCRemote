@@ -1,6 +1,7 @@
-# Protocol Architecture & Specifications
+# Universal PC Remote™ Protocol Specifications
+*by Aniket Akal*
 
-Universal PC Remote utilizes a bidirectional, JSON-encoded WebSocket channel over TCP (default port `51234`), complemented by UDP broadcast discovery (port `51235`).
+Universal PC Remote™ utilizes a bidirectional, JSON-encoded WebSocket channel over TCP (default port `51234`), complemented by UDP broadcast discovery (port `51235`).
 
 ## 1. Connection Life Cycle
 ```

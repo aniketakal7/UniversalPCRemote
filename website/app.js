@@ -1,5 +1,5 @@
 /**
- * Universal PC Remote — Production Interactive Script
+ * Universal PC Remote™ by Aniket Akal — Production Interactive Script
  * Modular client-side interaction engine.
  */
 

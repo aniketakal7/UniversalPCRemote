@@ -335,9 +335,10 @@
     });
   }
 
-  // 11. Navigation Scrollspy
+  // 11. Navigation Scrollspy (Main Page and Doc Sidebar)
   const sections = $$('section[id]');
   const navLinksList = $$('#navLinks a[href^="#"]');
+  const docLinksList = $$('.doc-nav-list a[href^="#"]');
 
   function updateScrollspy() {
     const scrollPos = window.scrollY + 120;
@@ -353,11 +354,96 @@
             a.classList.remove('active');
           }
         });
+        docLinksList.forEach((a) => {
+          if (a.getAttribute('href') === `#${id}`) {
+            a.classList.add('active');
+          } else {
+            a.classList.remove('active');
+          }
+        });
       }
     });
   }
 
-  window.addEventListener('scroll', updateScrollspy, { passive: true });
-  updateScrollspy();
+  if (sections.length > 0) {
+    window.addEventListener('scroll', updateScrollspy, { passive: true });
+    updateScrollspy();
+  }
+
+  // 12. Copy SHA-256 Checksum to Clipboard
+  $$('.copy-hash-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const hash = btn.dataset.hash;
+      const fileLabel = btn.dataset.file || 'SHA-256 Checksum';
+      if (!hash) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(hash).then(() => {
+          toast(`${fileLabel} copied to clipboard!`);
+        }).catch(() => {
+          toast(`Hash: ${hash.substring(0, 16)}...`);
+        });
+      } else {
+        toast(`Hash: ${hash.substring(0, 16)}...`);
+      }
+    });
+  });
+
+  // 13. Copy Code Block Snippet
+  $$('.code-copy-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const parentBox = btn.closest('.code-box');
+      if (!parentBox) return;
+      const codeEl = parentBox.querySelector('.code-content');
+      if (!codeEl) return;
+      const textToCopy = codeEl.innerText.trim();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          const original = btn.textContent;
+          btn.textContent = 'Copied! ✓';
+          toast('Code copied to clipboard');
+          setTimeout(() => { btn.textContent = original; }, 2000);
+        });
+      } else {
+        toast('Selected code snippet');
+      }
+    });
+  });
+
+  // 14. Interactive Contact & Support Form Engine
+  const contactForm = $('#contactForm');
+  if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = ($('#contactName') ? $('#contactName').value.trim() : '') || 'User';
+      const email = ($('#contactEmail') ? $('#contactEmail').value.trim() : '') || '';
+      const subject = ($('#contactSubject') ? $('#contactSubject').value : 'Inquiry') || 'Inquiry';
+      const message = ($('#contactMessage') ? $('#contactMessage').value.trim() : '') || '';
+
+      if (!email || !message) {
+        toast('Please enter your email and message.');
+        return;
+      }
+
+      // Build safe mailto URI as transparent direct client delivery
+      const mailSubject = encodeURIComponent(`[Universal PC Remote] ${subject} - from ${name}`);
+      const mailBody = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nCategory: ${subject}\n\nMessage:\n${message}\n\nSent from Universal PC Remote Web Portal.`);
+      const mailtoLink = `mailto:aniketakal7@gmail.com?subject=${mailSubject}&body=${mailBody}`;
+
+      toast('Opening your email client to send message...');
+      window.location.href = mailtoLink;
+
+      // Provide optimistic confirmation
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Message Prepared ✓';
+        setTimeout(() => {
+          contactForm.reset();
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message ➔';
+        }, 4000);
+      }
+    });
+  }
 
 })();

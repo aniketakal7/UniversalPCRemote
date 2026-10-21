@@ -51,16 +51,15 @@
         <a href="#home">Home</a>
         <a href="#features">Features</a>
         <a href="#demo">Live Demo</a>
-        <a href="#gestures">Gestures</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#how">How it works</a>
+        <a href="guide.html">Guides &amp; Docs</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
         <a href="#download">Download</a>
-        <a href="#faq">FAQ</a>
         <a class="btn mobile-cta" href="#download">Get App Free <span class="arrow">↗</span></a>
       </nav>
 
       <div class="nav-cta">
-        <a class="btn outline" href="#demo"><span aria-hidden="true">▷</span> Live Demo</a>
+        <a class="btn outline" href="guide.html"><span aria-hidden="true">📖</span> Setup Guide</a>
         <a class="btn" href="#download">Get App Free <span class="arrow">↗</span></a>
       </div>
 
@@ -536,6 +535,44 @@
             <div class="download-help">
               💡 <strong>Desktop App Quick Setup:</strong> Extract <code>UniversalPCRemote-v1.0.0-windows-x64.zip</code> anywhere and double-click <code>UniversalPCRemote.exe</code>. It runs seamlessly in your Windows system tray with zero installer or cloud requirements.
             </div>
+
+            <!-- SHA-256 File Verification Card -->
+            <div style="margin-top: 24px; padding: 20px; background: rgba(5, 11, 25, 0.7); border: 1px solid var(--line); border-radius: var(--radius-md);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                <strong style="font-size: 0.92rem; color: #ffffff; display: flex; align-items: center; gap: 6px;">
+                  🛡️ Official Cryptographic Checksums (SHA-256)
+                </strong>
+                <a href="guide.html#verification" style="font-size: 0.78rem; color: var(--cyan); font-weight: 700;">
+                  How to verify files ➔
+                </a>
+              </div>
+              
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="background: #030712; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(173, 199, 255, 0.1);">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--muted);">Windows ZIP Hash</span>
+                    <button class="copy-hash-btn" type="button" data-hash="e844ac733724910b80f9f637a32794e29787d4c1eaca9acb4f135f9bd6ad06df" data-file="Windows Companion ZIP Hash" style="padding: 3px 8px; font-size: 0.72rem;">
+                      📋 Copy Hash
+                    </button>
+                  </div>
+                  <code style="font-size: 0.74rem; color: var(--cyan); word-break: break-all; display: block; font-family: var(--font-mono);">e844ac733724910b80f9f637a32794e29787d4c1eaca9acb4f135f9bd6ad06df</code>
+                </div>
+
+                <div style="background: #030712; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(173, 199, 255, 0.1);">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--muted);">Android APK Hash</span>
+                    <button class="copy-hash-btn" type="button" data-hash="e25defd504cf9eee9225737c39030d8130cf79ea318208463775dd12f714e4a4" data-file="Android APK Hash" style="padding: 3px 8px; font-size: 0.72rem;">
+                      📋 Copy Hash
+                    </button>
+                  </div>
+                  <code style="font-size: 0.74rem; color: var(--cyan); word-break: break-all; display: block; font-family: var(--font-mono);">e25defd504cf9eee9225737c39030d8130cf79ea318208463775dd12f714e4a4</code>
+                </div>
+              </div>
+
+              <div style="margin-top: 12px; font-size: 0.78rem; color: var(--muted-dark); line-height: 1.5;">
+                🔒 <strong>File Safety Guarantee:</strong> 100% VirusTotal Clean. If Windows Defender SmartScreen displays a blue prompt, click <em>"More info"</em> &gt; <em>"Run anyway"</em>. See our <a href="guide.html#verification" style="color: var(--cyan); text-decoration: underline;">Safety &amp; Verification Guide</a> for details.
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -640,20 +677,29 @@
             <a href="#features">Features</a>
             <a href="#demo">Interactive Demo</a>
             <a href="#gestures">Gestures Reference</a>
-            <a href="#architecture">Architecture</a>
+            <a href="about.html">About Project</a>
           </div>
 
           <div class="footer-col">
             <strong>Downloads</strong>
             <a href="downloads/UniversalPCRemote.apk" download>Android APK (23.6 MB)</a>
             <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download>Windows Companion (77.6 MB)</a>
-            <a href="#how">Setup Guide</a>
+            <a href="guide.html#verification">Verify Checksums (SHA-256)</a>
           </div>
 
           <div class="footer-col">
-            <strong>Trust &amp; Project</strong>
-            <a href="#architecture">Zero Telemetry</a>
-            <a href="#faq">FAQ</a>
+            <strong>Guides &amp; Support</strong>
+            <a href="guide.html">Pairing &amp; Setup Guide</a>
+            <a href="guide.html#firewall">Windows Firewall Setup</a>
+            <a href="guide.html#troubleshooting">Troubleshooting Matrix</a>
+            <a href="contact.html">Contact Developer</a>
+          </div>
+
+          <div class="footer-col">
+            <strong>Legal &amp; Trust</strong>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+            <a href="about.html">Zero-Cloud Guarantee</a>
             <a href="#home">Back to top ↑</a>
           </div>
         </div>

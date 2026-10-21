@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050b19">
+  <title>Setup &amp; Troubleshooting Guide — Universal PC Remote™ by Aniket Akal</title>
+  <meta name="description" content="Step-by-step setup guide for pairing Universal PC Remote™ Android app to Windows, configuring Windows Defender Firewall, verifying SHA-256 checksums, and troubleshooting LAN connections.">
+  <meta name="author" content="Aniket Akal">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://universalpcremote.pages.dev/guide.html">
+  
+  <!-- Open Graph / Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://universalpcremote.pages.dev/guide.html">
+  <meta property="og:title" content="Setup &amp; Troubleshooting Guide — Universal PC Remote™ by Aniket Akal">
+  <meta property="og:description" content="Complete pairing guide, Windows Firewall walkthrough, file integrity verification (SHA-256), and network diagnostics.">
+  <meta property="og:site_name" content="Universal PC Remote™ by Aniket Akal">
+  <meta property="og:image" content="https://universalpcremote.pages.dev/assets/app_icon.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Setup &amp; Troubleshooting Guide — Universal PC Remote™">
+  <meta name="twitter:description" content="Complete pairing guide, Windows Firewall walkthrough, file integrity verification, and network diagnostics.">
+  <meta name="twitter:image" content="https://universalpcremote.pages.dev/assets/app_icon.png">
+
+  <link rel="icon" type="image/png" href="assets/app_icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <!-- Sticky Tech Navigation Bar -->
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="index.html" aria-label="Universal PC Remote™ by Aniket Akal home">
+        <span class="brandmark" aria-hidden="true">
+          <img src="assets/app_icon.png" alt="Universal PC Remote™ logo">
+        </span>
+        <span class="brand-text">Universal PC <span>Remote</span>™</span>
+        <span class="brand-badge">by Aniket Akal</span>
+      </a>
+
+      <nav class="links" id="navLinks" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="index.html#features">Features</a>
+        <a href="guide.html" class="active">Guides &amp; Docs</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="index.html#download">Download</a>
+        <a class="btn mobile-cta" href="index.html#download">Get App Free <span class="arrow">↗</span></a>
+      </nav>
+
+      <div class="nav-cta">
+        <a class="btn outline" href="#troubleshooting"><span aria-hidden="true">🔧</span> Diagnostics</a>
+        <a class="btn" href="index.html#download">Get App Free <span class="arrow">↗</span></a>
+      </div>
+
+      <button class="menu" id="menuBtn" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Open navigation menu">☰</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Subpage Hero -->
+    <section class="page-hero">
+      <div class="wrap">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html">Home</a>
+          <span class="sep">/</span>
+          <span class="current">Guides &amp; Docs</span>
+        </nav>
+        <div class="eyebrow">
+          <span class="pulse"></span>
+          <span>OFFICIAL DOCUMENTATION</span>
+        </div>
+        <h1 class="page-title">Setup, Pairing &amp;<br>Security Masterclass.</h1>
+        <p class="page-subtitle">
+          Everything you need to pair your phone to Windows, configure Windows Defender Firewall, verify official SHA-256 release checksums, and troubleshoot local network connectivity.
+        </p>
+        <div class="page-meta">
+          <span class="page-meta-badge">Windows 10 / 11 x64</span>
+          <span class="page-meta-badge">Android 8.0+ (API 26+)</span>
+          <span class="page-meta-badge">Ports: 51234 (TCP) / 51235 (UDP)</span>
+          <span class="page-meta-badge">Zero Cloud Relay</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Documentation Two-Column Layout -->
+    <section class="doc-layout">
+      <div class="wrap doc-grid">
+        
+        <!-- Sticky Sidebar Navigation -->
+        <aside class="doc-sidebar">
+          <div class="doc-sidebar-title">Table of Contents</div>
+          <nav>
+            <ul class="doc-nav-list">
+              <li><a href="#quickstart" class="active">1. Quick Start (3 Steps)</a></li>
+              <li><a href="#pairing">2. Pairing Walkthrough</a></li>
+              <li><a href="#firewall">3. Windows Firewall Setup</a></li>
+              <li><a href="#troubleshooting">4. Troubleshooting Matrix</a></li>
+              <li><a href="#verification">5. File Verification &amp; Safety</a></li>
+              <li><a href="#security">6. Local Network Security</a></li>
+            </ul>
+          </nav>
+          <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line);">
+            <a href="index.html#download" class="btn outline" style="width: 100%; min-height: 40px; font-size: 0.82rem; padding: 0 12px;">
+              Direct Downloads ↓
+            </a>
+          </div>
+        </aside>
+
+        <!-- Documentation Content Body -->
+        <div class="doc-content">
+
+          <!-- Section 1: Quickstart -->
+          <section class="doc-section" id="quickstart">
+            <h2><span style="color: var(--cyan);">01.</span> Quick Start Guide</h2>
+            <p>
+              Universal PC Remote™ is designed to be up and running in under three minutes without creating accounts or setting up cloud tunnels.
+            </p>
+
+            <div class="guide-step">
+              <div class="step-header">
+                <span class="step-num">1</span>
+                <h3 class="step-title">Extract the Windows Companion</h3>
+              </div>
+              <p>
+                Download <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download style="color: var(--cyan); font-weight: 700;">UniversalPCRemote-v1.0.0-windows-x64.zip</a> (77.6 MB). Extract the folder anywhere on your PC (such as <code>Desktop</code> or <code>Documents</code>).
+              </p>
+              <div class="callout callout-tip">
+                <span class="callout-icon">💡</span>
+                <div class="callout-body">
+                  <strong>Zero Installation Required:</strong> The companion is completely portable. Simply double-click <code>UniversalPCRemote.exe</code> to launch. It runs silently in your Windows System Tray (notification area).
+                </div>
+              </div>
+            </div>
+
+            <div class="guide-step">
+              <div class="step-header">
+                <span class="step-num">2</span>
+                <h3 class="step-title">Install the Android Client</h3>
+              </div>
+              <p>
+                Download <a href="downloads/UniversalPCRemote.apk" download style="color: var(--cyan); font-weight: 700;">UniversalPCRemote.apk</a> (23.6 MB) directly to your Android device, or scan the official QR code on the homepage. Open the downloaded file to install it.
+              </p>
+              <p style="font-size: 0.92rem; color: var(--muted-dark);">
+                If prompted by Android, tap <strong>Settings</strong> and enable <em>"Allow from this source"</em> for your browser or file manager to complete the installation.
+              </p>
+            </div>
+
+            <div class="guide-step">
+              <div class="step-header">
+                <span class="step-num">3</span>
+                <h3 class="step-title">Connect &amp; Pair</h3>
+              </div>
+              <p>
+                Make sure your phone and PC are connected to the same Wi-Fi network. Launch the Android app and tap <strong>"Discover PCs"</strong>. Your computer will be detected automatically via UDP broadcast beacon. Tap your PC and enter the 6-digit PIN displayed on your computer screen to complete pairing.
+              </p>
+            </div>
+          </section>
+
+          <!-- Section 2: Detailed Pairing Walkthrough -->
+          <section class="doc-section" id="pairing">
+            <h2><span style="color: var(--cyan);">02.</span> Pairing Walkthrough &amp; Discovery</h2>
+            <p>
+              Universal PC Remote™ utilizes a multi-stage discovery and cryptographic pairing architecture to ensure fast connection without compromising security.
+            </p>
+
+            <h3>How Automatic Discovery Works</h3>
+            <p>
+              When you tap <strong>"Discover PCs"</strong> on your Android phone, the app broadcasts a lightweight discovery datagram to the local subnet on UDP port <code>51235</code>. When the Windows companion receives this beacon, it immediately answers with:
+            </p>
+            <ul>
+              <li><strong>PC Hostname:</strong> Your Windows computer's name (e.g. <code>MY-GAMING-RIG</code>).</li>
+              <li><strong>Local LAN IP:</strong> The active network adapter's IP address (e.g. <code>192.168.1.105</code>).</li>
+              <li><strong>WebSocket Port:</strong> The active connection port (default <code>51234</code>).</li>
+            </ul>
+
+            <h3>Connecting via Manual IP Address (Fallback)</h3>
+            <p>
+              If your Wi-Fi router disables UDP broadcast or has AP isolation enabled, you can connect directly via IP:
+            </p>
+            <ol>
+              <li>Open the Windows Companion dashboard by clicking the system tray icon, or open Command Prompt and type <code>ipconfig</code>.</li>
+              <li>Find your <strong>IPv4 Address</strong> (usually starts with <code>192.168.x.x</code> or <code>10.0.x.x</code>).</li>
+              <li>In the Android app, select <strong>"Manual Connect"</strong> and enter this IP address along with port <code>51234</code>.</li>
+            </ol>
+
+            <h3>The 6-Digit Cryptographic Pairing Handshake</h3>
+            <p>
+              To prevent unauthorized devices on your Wi-Fi from controlling your mouse and keyboard:
+            </p>
+            <ul>
+              <li>When an unknown phone attempts to connect, the host PC displays a prominent notification dialog containing a random <strong>6-digit one-time PIN</strong>.</li>
+              <li>Enter this PIN on your phone within 60 seconds.</li>
+              <li>The companion and phone exchange a cryptographically secure SHA-256 session token.</li>
+              <li>The token is stored in the app's secure keystore, allowing seamless <strong>instant reconnection</strong> in future sessions without re-entering the PIN.</li>
+              <li>You can revoke authorized devices at any time directly from the companion dashboard.</li>
+            </ul>
+          </section>
+
+          <!-- Section 3: Windows Firewall Setup -->
+          <section class="doc-section" id="firewall">
+            <h2><span style="color: var(--cyan);">03.</span> Windows Firewall Configuration</h2>
+            <p>
+              Because Universal PC Remote™ operates as a local network server, Windows Defender Firewall must permit incoming traffic on ports <code>51234</code> (WebSocket TCP) and <code>51235</code> (Discovery UDP).
+            </p>
+
+            <div class="callout callout-info">
+              <span class="callout-icon">ℹ️</span>
+              <div class="callout-body">
+                <strong>First-Time Launch Prompt:</strong> The first time you open <code>UniversalPCRemote.exe</code>, Windows Firewall may display a pop-up asking <em>"Allow Universal PC Remote to communicate on these networks?"</em>. Check <strong>"Private networks (home or work)"</strong> and click <strong>"Allow access"</strong>.
+              </div>
+            </div>
+
+            <h3>Method A: One-Click Automated Script (Recommended)</h3>
+            <p>
+              The Windows Companion zip bundle includes an automated firewall configuration script (<code>setup_firewall.bat</code>):
+            </p>
+            <ol>
+              <li>Locate <code>setup_firewall.bat</code> inside your extracted companion folder.</li>
+              <li>Right-click <code>setup_firewall.bat</code> and select <strong>"Run as administrator"</strong>.</li>
+              <li>The script automatically registers inbound firewall rules for TCP port 51234 and UDP port 51235 in Windows Defender.</li>
+            </ol>
+
+            <div class="code-box">
+              <div class="code-header">
+                <span class="code-lang">BAT • setup_firewall.bat</span>
+                <button class="code-copy-btn" type="button">Copy Code</button>
+              </div>
+              <pre class="code-content">netsh advfirewall firewall add rule name="Universal PC Remote (TCP-51234)" dir=in action=allow protocol=TCP localport=51234 profile=private
+netsh advfirewall firewall add rule name="Universal PC Remote (UDP-51235)" dir=in action=allow protocol=UDP localport=51235 profile=private</pre>
+            </div>
+
+            <h3>Method B: Manual Windows Defender Firewall Configuration</h3>
+            <p>
+              If your corporate policy or custom security suite requires manual rule definition:
+            </p>
+            <ol>
+              <li>Press <kbd>Win + R</kbd>, type <code>wf.msc</code>, and hit <kbd>Enter</kbd> to open Windows Defender Firewall with Advanced Security.</li>
+              <li>Click <strong>Inbound Rules</strong> in the left panel, then click <strong>New Rule...</strong> on the right.</li>
+              <li>Select <strong>Port</strong> &gt; Click <strong>Next</strong>.</li>
+              <li>Choose <strong>TCP</strong> and specify port <code>51234</code>.</li>
+              <li>Select <strong>Allow the connection</strong> &gt; Click <strong>Next</strong>.</li>
+              <li>Ensure <strong>Private</strong> is checked &gt; Name the rule <code>Universal PC Remote TCP</code>.</li>
+              <li>Repeat the exact same steps for <strong>UDP port 51235</strong>.</li>
+            </ol>
+
+            <h3>Verifying Windows Wi-Fi Profile is "Private"</h3>
+            <p>
+              Windows blocks local LAN communication if your Wi-Fi network profile is set to "Public". To verify:
+            </p>
+            <ol>
+              <li>Open Windows <strong>Settings</strong> (<kbd>Win + I</kbd>) &gt; <strong>Network &amp; internet</strong> &gt; <strong>Wi-Fi</strong>.</li>
+              <li>Click on your connected Wi-Fi network name.</li>
+              <li>Under <strong>Network profile type</strong>, make sure <strong>Private network</strong> is selected.</li>
+            </ol>
+          </section>
+
+          <!-- Section 4: Troubleshooting Matrix -->
+          <section class="doc-section" id="troubleshooting">
+            <h2><span style="color: var(--cyan);">04.</span> Troubleshooting Matrix</h2>
+            <p>
+              Encountering an issue? Find your symptom below to apply the exact verified resolution.
+            </p>
+
+            <div class="trouble-grid">
+              
+              <!-- Issue 1 -->
+              <div class="trouble-item">
+                <div class="trouble-title">
+                  <span class="icon">🔍</span>
+                  <span>PC Not Found During "Discover PCs" Scan</span>
+                </div>
+                <div class="trouble-cause">
+                  <strong>Likely Cause:</strong> Router AP/Client Isolation is enabled, or phone is on a 5 GHz guest network while the PC is on a 2.4 GHz main network.
+                </div>
+                <div class="trouble-fix">
+                  <strong>Resolution:</strong>
+                  <ul>
+                    <li>Log into your Wi-Fi router admin page and disable <strong>"AP Isolation"</strong> or <strong>"Client Isolation"</strong>. This feature prevents wireless devices from seeing each other.</li>
+                    <li>Ensure both devices are on the exact same Wi-Fi SSID (not a Guest network).</li>
+                    <li>Use the <strong>Manual Connect</strong> option in the app by typing your PC's IP address directly (e.g. <code>192.168.1.50:51234</code>).</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Issue 2 -->
+              <div class="trouble-item">
+                <div class="trouble-title">
+                  <span class="icon">🚫</span>
+                  <span>Connection Timed Out or "Connection Refused"</span>
+                </div>
+                <div class="trouble-cause">
+                  <strong>Likely Cause:</strong> Companion is not running, or another program is occupying port 51234, or firewall blocked the connection.
+                </div>
+                <div class="trouble-fix">
+                  <strong>Resolution:</strong>
+                  <ul>
+                    <li>Check your Windows System Tray (near the clock) to confirm the <strong>Universal PC Remote</strong> icon is visible.</li>
+                    <li>Verify port 51234 status in PowerShell by running: <code>netstat -ano | findstr 51234</code>. If another app is listening, close it.</li>
+                    <li>Run <code>setup_firewall.bat</code> as Administrator to refresh firewall permits.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Issue 3 -->
+              <div class="trouble-item">
+                <div class="trouble-title">
+                  <span class="icon">🌐</span>
+                  <span>Virtual Network Adapters Selecting Wrong IP</span>
+                </div>
+                <div class="trouble-cause">
+                  <strong>Likely Cause:</strong> Hyper-V, VirtualBox, VMware, or WSL created virtual network adapters that confuse automatic IP detection.
+                </div>
+                <div class="trouble-fix">
+                  <strong>Resolution:</strong>
+                  <ul>
+                    <li>Click the Universal PC Remote system tray icon to view active network adapters.</li>
+                    <li>Select your physical Wi-Fi or Ethernet adapter from the dropdown list.</li>
+                    <li>Or look up your physical Wi-Fi IPv4 address with <code>ipconfig</code> and use Manual Connect on Android.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Issue 4 -->
+              <div class="trouble-item">
+                <div class="trouble-title">
+                  <span class="icon">🛡️</span>
+                  <span>Active VPN Tunnel Intercepting Local Routing</span>
+                </div>
+                <div class="trouble-cause">
+                  <strong>Likely Cause:</strong> Commercial or corporate VPNs (e.g. NordVPN, ExpressVPN, Cisco AnyConnect, Tailscale) routed all LAN packets through their tunnel.
+                </div>
+                <div class="trouble-fix">
+                  <strong>Resolution:</strong>
+                  <ul>
+                    <li>In your VPN client settings, enable <strong>"Allow LAN traffic"</strong> or <strong>"Inbound LAN Connections"</strong> (Split Tunneling).</li>
+                    <li>Temporarily disconnect the VPN during remote sessions to verify if routing was intercepted.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Issue 5 -->
+              <div class="trouble-item">
+                <div class="trouble-title">
+                  <span class="icon">⚡</span>
+                  <span>Touchpad Lag, Jitter, or Connection Drops After Phone Display Off</span>
+                </div>
+                <div class="trouble-cause">
+                  <strong>Likely Cause:</strong> Android OS aggressive battery management suspended the background Wi-Fi radio or killed the socket.
+                </div>
+                <div class="trouble-fix">
+                  <strong>Resolution:</strong>
+                  <ul>
+                    <li>On Android, go to <strong>Settings</strong> &gt; <strong>Apps</strong> &gt; <strong>Universal PC Remote</strong>.</li>
+                    <li>Tap <strong>Battery</strong> &gt; Change from <em>"Optimized"</em> to <strong>"Unrestricted"</strong>.</li>
+                    <li>Connect both PC and phone to 5 GHz or 6 GHz Wi-Fi instead of congested 2.4 GHz channels for sub-8ms response.</li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- Section 5: File Verification & Safety -->
+          <section class="doc-section" id="verification">
+            <h2><span style="color: var(--cyan);">05.</span> File Verification &amp; Binary Safety</h2>
+            <p>
+              Your security and trust are our highest priorities. All Universal PC Remote™ binaries are built transparently from open-source code and published with verifiable SHA-256 cryptographic checksums.
+            </p>
+
+            <div class="callout callout-tip">
+              <span class="callout-icon">🛡️</span>
+              <div class="callout-body">
+                <strong>100% VirusTotal Clean:</strong> Universal PC Remote™ binaries contain zero telemetry, zero adware, zero bundled toolbars, and zero data collection. You can inspect the complete source code on GitHub anytime.
+              </div>
+            </div>
+
+            <h3>Official Production Hashes (v1.0.0 Release)</h3>
+            <p>
+              Verify that your downloaded files match the official cryptographic hashes generated by the compiler:
+            </p>
+
+            <div class="checksum-grid">
+              
+              <!-- Checksum Windows ZIP -->
+              <div class="checksum-card">
+                <div class="checksum-header">
+                  <span class="checksum-file">💻 UniversalPCRemote-v1.0.0-windows-x64.zip</span>
+                  <span class="checksum-tag">Windows x64 • 77.6 MB</span>
+                </div>
+                <div class="checksum-value-wrap">
+                  <div class="checksum-label">SHA-256 CHECKSUM</div>
+                  <div class="checksum-hash" id="winZipHash">e844ac733724910b80f9f637a32794e29787d4c1eaca9acb4f135f9bd6ad06df</div>
+                </div>
+                <div class="checksum-action">
+                  <button class="copy-hash-btn" type="button" data-hash="e844ac733724910b80f9f637a32794e29787d4c1eaca9acb4f135f9bd6ad06df" data-file="Windows Companion ZIP Hash">
+                    📋 Copy SHA-256
+                  </button>
+                  <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download style="font-size: 0.8rem; color: var(--cyan); font-weight: 700;">
+                    Download ZIP ↓
+                  </a>
+                </div>
+              </div>
+
+              <!-- Checksum Android APK -->
+              <div class="checksum-card">
+                <div class="checksum-header">
+                  <span class="checksum-file">📱 UniversalPCRemote.apk</span>
+                  <span class="checksum-tag">Android • 23.6 MB</span>
+                </div>
+                <div class="checksum-value-wrap">
+                  <div class="checksum-label">SHA-256 CHECKSUM</div>
+                  <div class="checksum-hash" id="apkHash">e25defd504cf9eee9225737c39030d8130cf79ea318208463775dd12f714e4a4</div>
+                </div>
+                <div class="checksum-action">
+                  <button class="copy-hash-btn" type="button" data-hash="e25defd504cf9eee9225737c39030d8130cf79ea318208463775dd12f714e4a4" data-file="Android APK Hash">
+                    📋 Copy SHA-256
+                  </button>
+                  <a href="downloads/UniversalPCRemote.apk" download style="font-size: 0.8rem; color: var(--cyan); font-weight: 700;">
+                    Download APK ↓
+                  </a>
+                </div>
+              </div>
+
+            </div>
+
+            <h3>How to Verify File Hashes on Windows</h3>
+            <p>
+              Open PowerShell, navigate to your <code>Downloads</code> folder, and run:
+            </p>
+            <div class="code-box">
+              <div class="code-header">
+                <span class="code-lang">POWERSHELL</span>
+                <button class="code-copy-btn" type="button">Copy Command</button>
+              </div>
+              <pre class="code-content">Get-FileHash "$HOME\Downloads\UniversalPCRemote-v1.0.0-windows-x64.zip" -Algorithm SHA256</pre>
+            </div>
+            <p style="font-size: 0.92rem; color: var(--muted-dark);">
+              Compare the output string to the hash shown above. If the hashes match, your file is 100% authentic and uncorrupted.
+            </p>
+
+            <h3>How to Verify File Hashes on Linux, macOS, or Android Termux</h3>
+            <div class="code-box">
+              <div class="code-header">
+                <span class="code-lang">BASH</span>
+                <button class="code-copy-btn" type="button">Copy Command</button>
+              </div>
+              <pre class="code-content">sha256sum UniversalPCRemote.apk</pre>
+            </div>
+
+            <h3>Understanding Windows SmartScreen ("Windows Protected Your PC")</h3>
+            <p>
+              When running newly released, free open-source software, Microsoft Defender SmartScreen may display a blue dialog stating: <em>"Windows protected your PC. Microsoft Defender SmartScreen prevented an unrecognized app from starting."</em>
+            </p>
+            <p>
+              <strong>Why does this happen?</strong> Microsoft requires software publishers to purchase expensive corporate Extended Validation (EV) code-signing certificates ($400-$700/year) to establish instant reputation. Independent, free open-source projects without corporate certificates trigger this standard warning until hundreds of users run the application.
+            </p>
+            <p>
+              <strong>How to safely proceed:</strong>
+            </p>
+            <ol>
+              <li>Click <strong>"More info"</strong> on the SmartScreen dialog.</li>
+              <li>Verify that the application name displays <code>UniversalPCRemote.exe</code>.</li>
+              <li>Click the <strong>"Run anyway"</strong> button.</li>
+              <li>You can also upload <code>UniversalPCRemote.exe</code> directly to <a href="https://www.virustotal.com" target="_blank" rel="noopener" style="color: var(--cyan); font-weight: 700;">VirusTotal.com</a> to scan it against 70+ antivirus engines.</li>
+            </ol>
+          </section>
+
+          <!-- Section 6: Network Security -->
+          <section class="doc-section" id="security">
+            <h2><span style="color: var(--cyan);">06.</span> Connection Security &amp; LAN Hardening</h2>
+            <p>
+              Operating without a cloud server means your security perimeter is your local Wi-Fi network. Here is how we ensure secure operation:
+            </p>
+            <ul>
+              <li><strong>Zero External Ingress:</strong> The companion binds strictly to local network interfaces. It does not configure UPnP port forwarding on your router and cannot be accessed from outside your home network.</li>
+              <li><strong>Physical Proximity Defense:</strong> Device pairing requires entering a 6-digit PIN physically shown on the Windows desktop monitor. An attacker cannot pair without visual sight of your monitor.</li>
+              <li><strong>Recommended Network Setup:</strong> For maximum security on untrusted public Wi-Fi (such as coffee shops or university campus networks), enable Windows Mobile Hotspot and connect your phone directly to your PC's dedicated hotspot network.</li>
+            </ul>
+          </section>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Support CTA -->
+    <section class="section" style="padding-top: 0;">
+      <div class="wrap" style="text-align: center; max-width: 780px;">
+        <div class="reveal">
+          <h2 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 16px;">Still Need Assistance?</h2>
+          <p style="color: var(--muted); font-size: 1.05rem; margin-bottom: 28px;">
+            Our community and developer are ready to help. Open an issue on GitHub or reach out directly.
+          </p>
+          <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+            <a class="btn btn-large" href="contact.html">Contact Developer ➔</a>
+            <a class="btn btn-large outline" href="https://github.com/aniketakal7/UniversalPCRemote/issues" target="_blank" rel="noopener">GitHub Issues ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Deep Midnight Footer -->
+  <footer>
+    <div class="wrap">
+      <div class="footer-top">
+        <div>
+          <a class="brand" href="index.html">
+            <span class="brandmark">
+              <img src="assets/app_icon.png" alt="App Icon">
+            </span>
+            <span class="brand-text">Universal PC <span>Remote</span>™</span>
+            <span class="brand-badge">by Aniket Akal</span>
+          </a>
+          <p class="footer-description">
+            Universal PC Remote™ by Aniket Akal is a precision phone-first companion deck for Windows PC control. Zero cloud, 8ms latency, and engineered for everyday workflow.
+          </p>
+        </div>
+
+        <div class="footer-cols">
+          <div class="footer-col">
+            <strong>Product</strong>
+            <a href="index.html#features">Features</a>
+            <a href="index.html#demo">Interactive Demo</a>
+            <a href="index.html#gestures">Gestures Reference</a>
+            <a href="about.html">About Project</a>
+          </div>
+
+          <div class="footer-col">
+            <strong>Downloads</strong>
+            <a href="downloads/UniversalPCRemote.apk" download>Android APK (23.6 MB)</a>
+            <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download>Windows Companion (77.6 MB)</a>
+            <a href="#verification">Verify Checksums (SHA-256)</a>
+          </div>
+
+          <div class="footer-col">
+            <strong>Guides &amp; Support</strong>
+            <a href="guide.html">Pairing &amp; Setup Guide</a>
+            <a href="#firewall">Windows Firewall Setup</a>
+            <a href="#troubleshooting">Troubleshooting Matrix</a>
+            <a href="contact.html">Contact Developer</a>
+          </div>
+
+          <div class="footer-col">
+            <strong>Legal &amp; Trust</strong>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+            <a href="about.html">Zero-Cloud Guarantee</a>
+            <a href="#main">Back to top ↑</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span id="year"></span> Universal PC Remote™ by Aniket Akal · Free &amp; Private Workstation Deck</span>
+        <a href="#main">Back to top ↑</a>
+      </div>
+      <div class="footer-trademark" style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center; font-size: 0.78rem; color: var(--muted);">
+        Universal PC Remote™ is a proprietary trademark of Aniket Akal. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" title="Back to top">↑</button>
+  <script src="app.js" defer></script>
+</body>
+</html>

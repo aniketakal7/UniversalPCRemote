@@ -78,10 +78,11 @@
         </div>
         <h1 class="page-title">Setup, Pairing &amp;<br>Security Masterclass.</h1>
         <p class="page-subtitle">
-          Everything you need to pair your phone to Windows, configure Windows Defender Firewall, verify official SHA-256 release checksums, and troubleshoot local network connectivity.
+          Everything you need to pair your phone to Windows or macOS, configure permissions &amp; firewall, verify official SHA-256 release checksums, and troubleshoot local network connectivity.
         </p>
         <div class="page-meta">
           <span class="page-meta-badge">Windows 10 / 11 x64</span>
+          <span class="page-meta-badge">macOS 12+ (Apple Silicon &amp; Intel)</span>
           <span class="page-meta-badge">Android 8.0+ (API 26+)</span>
           <span class="page-meta-badge">Ports: 51234 (TCP) / 51235 (UDP)</span>
           <span class="page-meta-badge">Zero Cloud Relay</span>
@@ -126,15 +127,18 @@
             <div class="guide-step">
               <div class="step-header">
                 <span class="step-num">1</span>
-                <h3 class="step-title">Extract the Windows Companion</h3>
+                <h3 class="step-title">Extract the Desktop Companion (Windows or macOS)</h3>
               </div>
               <p>
-                Download <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download style="color: var(--cyan); font-weight: 700;">UniversalPCRemote-v1.0.0-windows-x64.zip</a> (77.6 MB). Extract the folder anywhere on your PC (such as <code>Desktop</code> or <code>Documents</code>).
+                <strong>For Windows:</strong> Download <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download style="color: var(--cyan); font-weight: 700;">UniversalPCRemote-v1.0.0-windows-x64.zip</a>. Extract the folder anywhere and double-click <code>UniversalPCRemote.exe</code>.
+              </p>
+              <p style="margin-top: 8px;">
+                <strong>For macOS:</strong> Download <a href="downloads/UniversalPCRemote-v1.0.0-macOS.zip" download style="color: var(--cyan); font-weight: 700;">UniversalPCRemote-v1.0.0-macOS.zip</a>. Extract the folder and double-click <code>run_mac.command</code> (runs instantly via macOS built-in Python 3 with zero setup).
               </p>
               <div class="callout callout-tip">
                 <span class="callout-icon">💡</span>
                 <div class="callout-body">
-                  <strong>Zero Installation Required:</strong> The companion is completely portable. Simply double-click <code>UniversalPCRemote.exe</code> to launch. It runs silently in your Windows System Tray (notification area).
+                  <strong>macOS One-Time Permission:</strong> When prompted or in <em>System Settings ➔ Privacy &amp; Security ➔ Accessibility</em>, enable the switch for Terminal or Universal PC Remote to allow remote mouse and keyboard control.
                 </div>
               </div>
             </div>
@@ -424,6 +428,26 @@ netsh advfirewall firewall add rule name="Universal PC Remote (UDP-51235)" dir=i
                   </button>
                   <a href="downloads/UniversalPCRemote.apk" download style="font-size: 0.8rem; color: var(--cyan); font-weight: 700;">
                     Download APK ↓
+                  </a>
+                </div>
+              </div>
+
+              <!-- Checksum macOS ZIP -->
+              <div class="checksum-card">
+                <div class="checksum-header">
+                  <span class="checksum-file">🍎 UniversalPCRemote-v1.0.0-macOS.zip</span>
+                  <span class="checksum-tag">macOS • Portable ZIP</span>
+                </div>
+                <div class="checksum-value-wrap">
+                  <div class="checksum-label">SHA-256 CHECKSUM</div>
+                  <div class="checksum-hash" id="macHash">575cad684df5c0d773e70b2ffa943873af39ef5e00be88a2c78d7afbd29a48db</div>
+                </div>
+                <div class="checksum-action">
+                  <button class="copy-hash-btn" type="button" data-hash="575cad684df5c0d773e70b2ffa943873af39ef5e00be88a2c78d7afbd29a48db" data-file="macOS Companion ZIP Hash">
+                    📋 Copy SHA-256
+                  </button>
+                  <a href="downloads/UniversalPCRemote-v1.0.0-macOS.zip" download style="font-size: 0.8rem; color: var(--cyan); font-weight: 700;">
+                    Download ZIP ↓
                   </a>
                 </div>
               </div>

@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalPCRemote.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalPCRemote.Core", "windows_companion\UniversalPCRemote.Core.csproj", "{19189173-37AA-43EA-8844-6B1C6E853BDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalPCRemote.Mac", "mac_companion\UniversalPCRemote.Mac.csproj", "{B3838057-6936-43B8-B841-C0B6A9F930AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{19189173-37AA-43EA-8844-6B1C6E853BDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19189173-37AA-43EA-8844-6B1C6E853BDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19189173-37AA-43EA-8844-6B1C6E853BDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3838057-6936-43B8-B841-C0B6A9F930AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3838057-6936-43B8-B841-C0B6A9F930AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3838057-6936-43B8-B841-C0B6A9F930AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3838057-6936-43B8-B841-C0B6A9F930AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{32B591FA-A740-427A-B19D-AB8843345423} = {A13DA2DE-B1C8-4FA7-8B80-4EA2E0968976}

@@ -81,7 +81,7 @@
           <h1>Control your PC.<br>From <span class="gradient">anywhere.</span></h1>
 
           <p class="hero-copy">
-            Turn your Android smartphone into a precision zero-cloud companion for your Windows workstation. Move your cursor, type, manage media, and trigger system actions over local Wi-Fi with 8ms latency.
+            Turn your Android smartphone into a precision zero-cloud companion for your Windows or macOS computer. Move your cursor, type, manage media, and trigger system actions over local Wi-Fi with 8ms latency.
           </p>
 
           <div class="hero-actions">
@@ -100,8 +100,19 @@
               <span style="font-size: 1.3rem;">💻</span>
               <div class="btn-dual">
                 <div>
-                  <span>Download Desktop App</span>
-                  <span class="btn-subtext">Windows 10/11 x64 • Portable ZIP</span>
+                  <span>Windows Desktop App</span>
+                  <span class="btn-subtext">Windows 10/11 x64 • ZIP</span>
+                </div>
+              </div>
+              <span class="arrow">↓</span>
+            </a>
+
+            <a class="btn btn-large outline" href="downloads/UniversalPCRemote-v1.0.0-macOS.zip" download id="macDownloadBtn">
+              <span style="font-size: 1.3rem;">🍎</span>
+              <div class="btn-dual">
+                <div>
+                  <span>macOS Desktop App</span>
+                  <span class="btn-subtext">Apple Silicon &amp; Intel • ZIP</span>
                 </div>
               </div>
               <span class="arrow">↓</span>
@@ -476,7 +487,7 @@
             <div class="kicker">Official Downloads</div>
             <h2>Your setup starts <em>here.</em></h2>
             <p>
-              Available completely free for Android and Windows. Verified binaries, zero telemetry, zero adware, and direct downloads.
+              Available completely free for Android, Windows, and macOS. Verified binaries, zero telemetry, zero adware, and direct downloads.
             </p>
 
             <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
@@ -517,7 +528,22 @@
                 <small style="color: #4a5d7c;">v1.0.0 Standalone • 77.6 MB • Windows 10/11 x64</small>
               </div>
               <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download class="btn download-action-btn" style="background: linear-gradient(110deg, #1677ff, #0052cc); box-shadow: 0 4px 14px rgba(22, 119, 255, 0.45); font-weight: 800;">
-                Download Desktop App <span class="arrow">↓</span>
+                Download Windows App <span class="arrow">↓</span>
+              </a>
+            </div>
+
+            <!-- macOS Desktop App Card -->
+            <div class="download-card" style="background: #ffffff; border: 2px solid #5856d6; box-shadow: 0 8px 30px rgba(88, 86, 214, 0.15);">
+              <span class="download-icon" style="background: #f0f0ff; color: #5856d6; font-size: 1.8rem;">🍎</span>
+              <div class="download-meta">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <strong style="font-size: 1.05rem; color: #0b1a36;">macOS Companion App</strong>
+                  <span class="tag-badge success" style="font-size: 0.68rem; padding: 2px 7px; background: rgba(88, 86, 214, 0.15); color: #5856d6;">Apple Silicon &amp; Intel</span>
+                </div>
+                <small style="color: #4a5d7c;">v1.0.0 Release • Portable ZIP • macOS 12+</small>
+              </div>
+              <a href="downloads/UniversalPCRemote-v1.0.0-macOS.zip" download class="btn download-action-btn" style="background: linear-gradient(110deg, #5856d6, #3634a3); box-shadow: 0 4px 14px rgba(88, 86, 214, 0.4); font-weight: 800;">
+                Download Mac App <span class="arrow">↓</span>
               </a>
             </div>
 
@@ -534,7 +560,7 @@
             </div>
 
             <div class="download-help">
-              💡 <strong>Desktop App Quick Setup:</strong> Extract <code>UniversalPCRemote-v1.0.0-windows-x64.zip</code> anywhere and double-click <code>UniversalPCRemote.exe</code>. It runs seamlessly in your Windows system tray with zero installer or cloud requirements.
+              💡 <strong>Desktop Setup:</strong> For Windows, extract the ZIP and launch <code>UniversalPCRemote.exe</code>. For Mac, extract the ZIP and double-click <code>run_mac.command</code>. Both run silently with zero cloud dependencies.
             </div>
 
             <!-- SHA-256 File Verification Card -->
@@ -557,6 +583,16 @@
                     </button>
                   </div>
                   <code style="font-size: 0.74rem; color: var(--cyan); word-break: break-all; display: block; font-family: var(--font-mono);">e844ac733724910b80f9f637a32794e29787d4c1eaca9acb4f135f9bd6ad06df</code>
+                </div>
+
+                <div style="background: #030712; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(173, 199, 255, 0.1);">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--muted);">macOS ZIP Hash</span>
+                    <button class="copy-hash-btn" type="button" data-hash="575cad684df5c0d773e70b2ffa943873af39ef5e00be88a2c78d7afbd29a48db" data-file="macOS Companion ZIP Hash" style="padding: 3px 8px; font-size: 0.72rem;">
+                      📋 Copy Hash
+                    </button>
+                  </div>
+                  <code style="font-size: 0.74rem; color: var(--cyan); word-break: break-all; display: block; font-family: var(--font-mono);">575cad684df5c0d773e70b2ffa943873af39ef5e00be88a2c78d7afbd29a48db</code>
                 </div>
 
                 <div style="background: #030712; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(173, 199, 255, 0.1);">
@@ -593,6 +629,18 @@
         <div class="faq-list reveal">
           <div class="faq-item open">
             <button class="faq-question" type="button" aria-expanded="true">
+              <span>Does Universal PC Remote™ work on Mac / macOS?</span>
+              <span class="faq-plus" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer">
+              <div>
+                <p>Yes! Universal PC Remote™ officially supports both Windows (10 &amp; 11) and macOS (Apple Silicon M1/M2/M3/M4 &amp; Intel). Download the macOS Companion ZIP from this site, extract it, and simply double-click <code>run_mac.command</code>. Your phone discovers the Mac automatically over local Wi-Fi.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
               <span>Does this require an active internet connection?</span>
               <span class="faq-plus" aria-hidden="true">+</span>
             </button>

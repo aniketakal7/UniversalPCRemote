@@ -1,15 +1,8 @@
-using UniversalPCRemote.Companion.Applications;
-using UniversalPCRemote.Companion.Clipboard;
-using UniversalPCRemote.Companion.Diagnostics;
 using UniversalPCRemote.Companion.Discovery;
-using UniversalPCRemote.Companion.Input;
 using UniversalPCRemote.Companion.Logging;
-using UniversalPCRemote.Companion.Macros;
-using UniversalPCRemote.Companion.Media;
 using UniversalPCRemote.Companion.Protocol;
 using UniversalPCRemote.Companion.Security;
 using UniversalPCRemote.Companion.Server;
-using UniversalPCRemote.Companion.SystemControl;
 
 namespace UniversalPCRemote.Companion;
 
@@ -82,59 +75,11 @@ static class Program
             Console.WriteLine();
         };
 
-        var authHandler = new AuthCommandHandler(security);
-        var inputHandler = new InputCommandHandler(NativeInputSimulator.Instance);
-        var mediaHandler = new MediaCommandHandler(MediaController.Instance);
-        var systemHandler = new SystemCommandHandler(SystemController.Instance);
-        var clipboardHandler = new ClipboardCommandHandler(ClipboardController.Instance);
-        var remoteHandler = new RemoteCommandHandler(RemoteCatalog.Instance);
-        var macroHandler = new MacroCommandHandler(MacroEngine.Instance);
-
-        registry.Register(CommandTypes.AuthPairRequest, authHandler);
-        registry.Register(CommandTypes.AuthPairVerify, authHandler);
-        registry.Register(CommandTypes.AuthAuthenticate, authHandler);
-        registry.Register(CommandTypes.SessionPing, authHandler);
-
-        registry.Register(CommandTypes.MouseMove, inputHandler);
-        registry.Register(CommandTypes.MouseClick, inputHandler);
-        registry.Register(CommandTypes.MouseDown, inputHandler);
-        registry.Register(CommandTypes.MouseUp, inputHandler);
-        registry.Register(CommandTypes.MouseScroll, inputHandler);
-        registry.Register(CommandTypes.KeyboardText, inputHandler);
-        registry.Register(CommandTypes.KeyboardKey, inputHandler);
-        registry.Register(CommandTypes.KeyboardCombination, inputHandler);
-
-        registry.Register(CommandTypes.MediaPlayPause, mediaHandler);
-        registry.Register(CommandTypes.MediaNext, mediaHandler);
-        registry.Register(CommandTypes.MediaPrevious, mediaHandler);
-        registry.Register(CommandTypes.MediaStop, mediaHandler);
-        registry.Register(CommandTypes.MediaSeekBackward, mediaHandler);
-        registry.Register(CommandTypes.MediaSeekForward, mediaHandler);
-        registry.Register(CommandTypes.MediaVolumeUp, mediaHandler);
-        registry.Register(CommandTypes.MediaVolumeDown, mediaHandler);
-        registry.Register(CommandTypes.MediaVolumeMute, mediaHandler);
-        registry.Register(CommandTypes.MediaGetStatus, mediaHandler);
-
-        registry.Register(CommandTypes.SystemLock, systemHandler);
-        registry.Register(CommandTypes.SystemSleep, systemHandler);
-        registry.Register(CommandTypes.SystemRestart, systemHandler);
-        registry.Register(CommandTypes.SystemShutdown, systemHandler);
-        registry.Register(CommandTypes.SystemCancelShutdown, systemHandler);
-        registry.Register(CommandTypes.SystemGetInfo, systemHandler);
-
-        registry.Register(CommandTypes.ClipboardGet, clipboardHandler);
-        registry.Register(CommandTypes.ClipboardSet, clipboardHandler);
-
-        registry.Register(CommandTypes.RemoteList, remoteHandler);
-        registry.Register(CommandTypes.RemoteExecute, remoteHandler);
-
-        registry.Register(CommandTypes.MacroList, macroHandler);
-        registry.Register(CommandTypes.MacroExecute, macroHandler);
-
         var server = new CompanionWebSocketServer(51234, registry);
         var beacon = new DiscoveryBeacon(51234, 51235);
-        var diagHandler = new DiagnosticsCommandHandler(() => server.IsRunning, server.Port);
-        registry.Register(CommandTypes.DiagnosticsStatus, diagHandler);
+
+        // Single registration point — shared with the GUI companion via HandlerRegistrar
+        HandlerRegistrar.RegisterAll(registry, security, () => server.IsRunning, server.Port);
 
         await server.StartAsync();
         beacon.Start();

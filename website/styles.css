@@ -416,6 +416,39 @@ h1 .gradient {
   margin: 32px 0 26px;
 }
 
+#primaryDownloadBtn {
+  background: linear-gradient(110deg, #10b981, #059669 65%, #047857);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+}
+
+#primaryDownloadBtn:hover {
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.55);
+}
+
+#desktopDownloadBtn {
+  background: rgba(22, 119, 255, 0.12);
+  border-color: rgba(70, 140, 255, 0.45);
+}
+
+#desktopDownloadBtn:hover {
+  background: rgba(22, 119, 255, 0.25);
+  border-color: var(--cyan);
+  box-shadow: 0 8px 24px rgba(22, 119, 255, 0.35);
+  color: #ffffff;
+}
+
+#macDownloadBtn {
+  background: rgba(139, 124, 255, 0.1);
+  border-color: rgba(139, 124, 255, 0.4);
+}
+
+#macDownloadBtn:hover {
+  background: rgba(139, 124, 255, 0.22);
+  border-color: #a78bfa;
+  box-shadow: 0 8px 24px rgba(139, 124, 255, 0.3);
+  color: #ffffff;
+}
+
 .trust {
   display: flex;
   gap: 20px;

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050b19">
   <title>About Universal PC Remote™ by Aniket Akal — Mission, Zero-Cloud Philosophy &amp; Architecture</title>
-  <meta name="description" content="Discover the philosophy, engineering, and architecture behind Universal PC Remote™ by Aniket Akal. A zero-cloud, 100% peer-to-peer workstation companion for Android and Windows.">
+  <meta name="description" content="Discover the philosophy, engineering, and architecture behind Universal PC Remote™ by Aniket Akal. A zero-cloud, 100% peer-to-peer workstation companion for Android, Windows, and macOS.">
   <meta name="author" content="Aniket Akal">
   <meta name="robots" content="index, follow">
   <meta name="google-adsense-account" content="ca-pub-9775877477882396">
@@ -15,12 +15,12 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://universalpcremote.pages.dev/about.html">
   <meta property="og:title" content="About Universal PC Remote™ by Aniket Akal">
-  <meta property="og:description" content="Why Universal PC Remote™ was built: zero cloud, 8ms micro-latency, peer-to-peer workstation freedom for Android and Windows.">
+  <meta property="og:description" content="Why Universal PC Remote™ was built: zero cloud, 8ms micro-latency, peer-to-peer workstation freedom for Android, Windows, and macOS.">
   <meta property="og:site_name" content="Universal PC Remote™ by Aniket Akal">
   <meta property="og:image" content="https://universalpcremote.pages.dev/assets/app_icon.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="About Universal PC Remote™ by Aniket Akal">
-  <meta name="twitter:description" content="Zero cloud, 8ms micro-latency, peer-to-peer workstation freedom for Android and Windows.">
+  <meta name="twitter:description" content="Zero cloud, 8ms micro-latency, peer-to-peer workstation freedom for Android, Windows, and macOS.">
   <meta name="twitter:image" content="https://universalpcremote.pages.dev/assets/app_icon.png">
 
   <link rel="icon" type="image/png" href="assets/app_icon.png">
@@ -83,6 +83,7 @@
         <div class="page-meta">
           <span class="page-meta-badge">100% Peer-to-Peer</span>
           <span class="page-meta-badge">Zero Cloud Relay</span>
+          <span class="page-meta-badge">Windows &amp; macOS</span>
           <span class="page-meta-badge">Open Source Engine</span>
           <span class="page-meta-badge">Engineered by Aniket Akal</span>
         </div>
@@ -126,8 +127,8 @@
 
           <div class="card reveal">
             <span class="card-icon" style="background: rgba(112, 228, 255, 0.15); color: var(--blue2);">📦</span>
-            <h3>Zero-Install Companion</h3>
-            <p>The Windows companion runs as a self-contained, portable single-file binary. No installer required, zero registry bloat, and seamlessly docks right into your Windows system tray.</p>
+            <h3>Zero-Install Companions</h3>
+            <p>Portable binaries and runners for Windows and macOS. No installer required, zero registry bloat, and seamlessly docks right into your system tray or menu bar.</p>
           </div>
         </div>
 
@@ -152,10 +153,10 @@
           <div class="guide-step">
             <div class="step-header">
               <span class="step-num">2</span>
-              <h3 class="step-title">Windows Companion Core (Microsoft .NET 8 C#)</h3>
+              <h3 class="step-title">Desktop Companions (Windows .NET 8 C# &amp; macOS Quartz/Python Core)</h3>
             </div>
             <p>
-              The companion is built on .NET 8's high-throughput asynchronous I/O runtime. It leverages <code>System.Net.WebSockets</code> for zero-allocation event parsing and direct P/Invoke calls into Win32 <code>SendInput</code> and media virtual keycodes (<code>VK_MEDIA_PLAY_PAUSE</code>, <code>VK_VOLUME_UP</code>, etc.), ensuring immediate microsecond execution.
+              On Windows, the companion is built on .NET 8's high-throughput asynchronous I/O runtime with direct P/Invoke calls into Win32 <code>SendInput</code> and media virtual keycodes. On macOS, the companion leverages native CoreGraphics/Quartz event simulation and WebSocket servers for instantaneous microsecond command execution across Apple Silicon and Intel Macs.
             </p>
           </div>
 
@@ -206,7 +207,7 @@
         <div class="reveal">
           <h2 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 16px;">Ready to Take Complete Control?</h2>
           <p style="color: var(--muted); font-size: 1.05rem; margin-bottom: 28px;">
-            Get both the lightweight Android APK and the portable Windows companion completely free with verified binaries and zero cloud setup.
+            Get the lightweight Android APK, portable Windows companion, and macOS companion completely free with verified binaries and zero cloud setup.
           </p>
           <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
             <a class="btn btn-large" href="index.html#download">Download Now <span class="arrow">↓</span></a>
@@ -230,7 +231,7 @@
             <span class="brand-badge">by Aniket Akal</span>
           </a>
           <p class="footer-description">
-            Universal PC Remote™ by Aniket Akal is a precision phone-first companion deck for Windows PC control. Zero cloud, 8ms latency, and engineered for everyday workflow.
+            Universal PC Remote™ by Aniket Akal is a precision phone-first companion deck for Windows and macOS workstation control. Zero cloud, 8ms latency, and engineered for everyday workflow.
           </p>
         </div>
 
@@ -247,6 +248,7 @@
             <strong>Downloads</strong>
             <a href="downloads/UniversalPCRemote.apk" download>Android APK (23.6 MB)</a>
             <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download>Windows Companion (77.6 MB)</a>
+            <a href="downloads/UniversalPCRemote-v1.0.0-macOS.zip" download>macOS Companion (ZIP)</a>
             <a href="guide.html#verification">Verify Checksums (SHA-256)</a>
           </div>
 

@@ -273,12 +273,16 @@
   }
 
   // 8. OS & Architecture Detection Badge
-  const isWindows = navigator.userAgent.indexOf('Win') !== -1;
-  const isAndroid = navigator.userAgent.indexOf('Android') !== -1;
+  const ua = navigator.userAgent || '';
+  const isWindows = ua.indexOf('Win') !== -1;
+  const isAndroid = ua.indexOf('Android') !== -1;
+  const isMac = (ua.indexOf('Mac') !== -1 || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !isAndroid;
   const detectionBadge = $('#detectionBadge');
   if (detectionBadge) {
     if (isWindows) {
       detectionBadge.textContent = 'Windows PC Detected — Ready to run Companion';
+    } else if (isMac) {
+      detectionBadge.textContent = 'macOS Detected — Ready to run Companion';
     } else if (isAndroid) {
       detectionBadge.textContent = 'Android Device Detected — Ready to install APK';
     }
@@ -307,10 +311,14 @@
   }
   if (copyBtn) {
     copyBtn.addEventListener('click', () => {
+      const originalText = copyBtn.innerHTML;
+      const onCopied = () => {
+        copyBtn.innerHTML = '<span>Copied! ✓</span>';
+        toast('Direct APK link copied to clipboard!');
+        setTimeout(() => { copyBtn.innerHTML = originalText; }, 2000);
+      };
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(directApkUrl).then(() => {
-          toast('Direct APK link copied to clipboard!');
-        }).catch(() => {
+        navigator.clipboard.writeText(directApkUrl).then(onCopied).catch(() => {
           toast('Link: ' + directApkUrl);
         });
       } else {
@@ -376,10 +384,14 @@
       const hash = btn.dataset.hash;
       const fileLabel = btn.dataset.file || 'SHA-256 Checksum';
       if (!hash) return;
+      const originalText = btn.innerHTML;
+      const onCopied = () => {
+        btn.innerHTML = 'Copied! ✓';
+        toast(`${fileLabel} copied to clipboard!`);
+        setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+      };
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(hash).then(() => {
-          toast(`${fileLabel} copied to clipboard!`);
-        }).catch(() => {
+        navigator.clipboard.writeText(hash).then(onCopied).catch(() => {
           toast(`Hash: ${hash.substring(0, 16)}...`);
         });
       } else {

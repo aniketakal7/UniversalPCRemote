@@ -368,6 +368,26 @@ netsh advfirewall firewall add rule name="Universal PC Remote (UDP-51235)" dir=i
                 </div>
               </div>
 
+              <!-- Issue 6 (macOS) -->
+              <div class="trouble-item">
+                <div class="trouble-title">
+                  <span class="icon">🍎</span>
+                  <span>macOS: Phone Connects But Cursor Does Not Move</span>
+                </div>
+                <div class="trouble-cause">
+                  <strong>Likely Cause:</strong> macOS Accessibility permission is not granted to Terminal or the Universal PC Remote runner.
+                </div>
+                <div class="trouble-fix">
+                  <strong>Resolution:</strong>
+                  <ul>
+                    <li>Open <strong>System Settings</strong> on your Mac.</li>
+                    <li>Navigate to <strong>Privacy &amp; Security</strong> &gt; <strong>Accessibility</strong>.</li>
+                    <li>Ensure the toggle next to <strong>Terminal</strong> (or <strong>Universal PC Remote</strong>) is switched <strong>ON</strong>.</li>
+                    <li>Restart <code>run_mac.command</code> so macOS activates the input injection privileges.</li>
+                  </ul>
+                </div>
+              </div>
+
             </div>
           </section>
 
@@ -543,7 +563,7 @@ netsh advfirewall firewall add rule name="Universal PC Remote (UDP-51235)" dir=i
             <span class="brand-badge">by Aniket Akal</span>
           </a>
           <p class="footer-description">
-            Universal PC Remote™ by Aniket Akal is a precision phone-first companion deck for Windows PC control. Zero cloud, 8ms latency, and engineered for everyday workflow.
+            Universal PC Remote™ by Aniket Akal is a precision phone-first companion deck for Windows and macOS workstation control. Zero cloud, 8ms latency, and engineered for everyday workflow.
           </p>
         </div>
 
@@ -560,6 +580,7 @@ netsh advfirewall firewall add rule name="Universal PC Remote (UDP-51235)" dir=i
             <strong>Downloads</strong>
             <a href="downloads/UniversalPCRemote.apk" download>Android APK (23.6 MB)</a>
             <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download>Windows Companion (77.6 MB)</a>
+            <a href="downloads/UniversalPCRemote-v1.0.0-macOS.zip" download>macOS Companion (ZIP)</a>
             <a href="#verification">Verify Checksums (SHA-256)</a>
           </div>
 

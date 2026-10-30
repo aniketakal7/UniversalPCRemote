@@ -95,7 +95,7 @@
         
         <h2>1. The Zero-Cloud Principle</h2>
         <p>
-          Universal PC Remote™ does not operate external cloud servers, relay brokers, or hosted databases. All communication between the Android mobile client and the Windows PC companion occurs exclusively over your local Area Network (LAN), Wi-Fi, or direct mobile hotspot.
+          Universal PC Remote™ does not operate external cloud servers, relay brokers, or hosted databases. All communication between the Android mobile client and the Windows or macOS desktop companion occurs exclusively over your local Area Network (LAN), Wi-Fi, or direct mobile hotspot.
         </p>
         <p>
           At no point are your keystrokes, pointer movements, device identifiers, or clipboard contents transmitted over the public internet or stored on remote infrastructure.
@@ -154,12 +154,12 @@
           </table>
         </div>
 
-        <h2>4. Windows Companion Security &amp; Privileges</h2>
+        <h2>4. Windows &amp; macOS Companion Security &amp; Privileges</h2>
         <p>
-          The Windows companion is a self-contained portable executable. It does not install background services, create registry startup keys without explicit permission, or inject kernel drivers:
+          The desktop companions are self-contained, portable software solutions. They do not install background services, create registry startup keys without explicit permission, or inject kernel drivers:
         </p>
         <ul>
-          <li><strong>Input Injection:</strong> Uses standard Win32 <code>SendInput</code> API calls to simulate mouse movements and keyboard events strictly when authenticated packets are received from your paired phone.</li>
+          <li><strong>Input Injection:</strong> Uses standard Win32 <code>SendInput</code> API calls on Windows, and native CoreGraphics/Quartz event simulation on macOS (under explicit macOS Accessibility permissions), strictly when authenticated packets are received from your paired phone.</li>
           <li><strong>Network Ports:</strong> Listens exclusively on local TCP port <code>51234</code> and UDP port <code>51235</code>. It does not open firewall holes to the external internet or request UPnP router port forwarding.</li>
           <li><strong>Device Trust Keystore:</strong> Stores authorized device pairing tokens in a lightweight local JSON file in your user directory. You can revoke any paired device with one click at any time.</li>
         </ul>
@@ -210,7 +210,7 @@
             <span class="brand-badge">by Aniket Akal</span>
           </a>
           <p class="footer-description">
-            Universal PC Remote™ by Aniket Akal is a precision phone-first companion deck for Windows PC control. Zero cloud, 8ms latency, and engineered for everyday workflow.
+            Universal PC Remote™ by Aniket Akal is a precision phone-first companion deck for Windows and macOS workstation control. Zero cloud, 8ms latency, and engineered for everyday workflow.
           </p>
         </div>
 
@@ -227,6 +227,7 @@
             <strong>Downloads</strong>
             <a href="downloads/UniversalPCRemote.apk" download>Android APK (23.6 MB)</a>
             <a href="downloads/UniversalPCRemote-v1.0.0-windows-x64.zip" download>Windows Companion (77.6 MB)</a>
+            <a href="downloads/UniversalPCRemote-v1.0.0-macOS.zip" download>macOS Companion (ZIP)</a>
             <a href="guide.html#verification">Verify Checksums (SHA-256)</a>
           </div>
 
